@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, CartesianGrid, Legend
 import { motion, AnimatePresence } from "framer-motion";
 import TogglePill from "./TogglePill";
 import CustomTooltip from "./CustomTooltip";
+import { useDarkMode } from "../contexts/DarkModeContext";
 import { roiBreakdownByUseCase, roiUseCaseMeta, roiTrustTierByMetric, roiBreakdownByMetric, palette, trustTierFlat } from "../data/mockData";
 
 const VIEW = { USE: "use_case", TRUST: "trust" };
@@ -12,6 +13,7 @@ export default function RoiBreakdownUseCaseTrust() {
   const [view, setView] = useState(VIEW.USE);
   const [metric, setMetric] = useState("Revenue Protected");
   const [expanded, setExpanded] = useState(null);
+  const { isDarkMode } = useDarkMode();
 
   // Choose Y-axis format based on selected metric
   const formatAxis = useMemo(() => {
@@ -44,9 +46,9 @@ export default function RoiBreakdownUseCaseTrust() {
   const trustChartData = useMemo(() => trustTierFlat(trustMetricKey), [trustMetricKey]);
 
   return (
-    <motion.div layout className="bg-white border border-gray-200 rounded-xl p-6">
+    <motion.div layout className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border rounded-xl p-6`}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-900">ROI Breakdown — 12-Month Trend</h3>
+        <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>ROI Breakdown — 12-Month Trend</h3>
         <div className="flex items-center gap-3">
           <TogglePill
             options={[{label:"By Use Case",value:VIEW.USE},{label:"By Trust Tier",value:VIEW.TRUST}]}
@@ -55,7 +57,7 @@ export default function RoiBreakdownUseCaseTrust() {
           />
         </div>
       </div>
-      <p className="text-xs text-gray-500 mb-2">Click any bar or area to explore monthly details</p>
+      <p className={`text-xs mb-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Click any bar or area to explore monthly details</p>
 
       {/* secondary metric toggle */}
       <div className="mb-2">
@@ -70,10 +72,10 @@ export default function RoiBreakdownUseCaseTrust() {
           <ResponsiveContainer width="100%" height="100%">
             {view===VIEW.USE?(
               <BarChart data={roiBreakdownByUseCase} onClick={handleClickBar} style={{ cursor: 'pointer' }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={palette.border}/>
-              <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
-              <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
-              <Legend wrapperStyle={{fontSize:10, color:"#6B7280"}}/>
+              <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : palette.border}/>
+              <XAxis dataKey="month" tick={{fontSize:10,fill:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
+              <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
+              <Legend wrapperStyle={{fontSize:10, color:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
               <Tooltip content={<CustomTooltip/>}/>
               {activeUseKeys.map((k)=>{
                 return (
@@ -101,11 +103,11 @@ export default function RoiBreakdownUseCaseTrust() {
                       <stop offset="95%" stopColor="#DC2626" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={palette.border}/>
-                  <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
-                  <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
+                  <CartesianGrid strokeDasharray="3 3" stroke={isDarkMode ? "#374151" : palette.border}/>
+                  <XAxis dataKey="month" tick={{fontSize:10,fill:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
+                  <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
                   <Tooltip content={<CustomTooltip/>}/>
-                  <Legend wrapperStyle={{fontSize:10,color:"#6B7280"}}/>
+                  <Legend wrapperStyle={{fontSize:10,color:isDarkMode ? "#9CA3AF" : "#6B7280"}}/>
                 <Area type="monotone" dataKey="High" stackId="1"
                   stroke="#16A34A" fill="url(#HighGrad)" />
                 <Area type="monotone" dataKey="Medium" stackId="1"
@@ -159,7 +161,7 @@ export default function RoiBreakdownUseCaseTrust() {
         </ResponsiveContainer>
       </motion.div>
 
-      <p className="text-xs text-gray-700 mt-3">
+      <p className={`text-xs mt-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
         💡 <span className="font-semibold">Insight:</span> {view===VIEW.USE
           ?"Use-case view highlights ROI by operational method."
           :"Trust-tier view reveals shifting LTV & fraud patterns over time."}
@@ -173,10 +175,10 @@ export default function RoiBreakdownUseCaseTrust() {
             animate={{opacity:1,y:0}}
             exit={{opacity:0,y:20}}
             transition={{duration:0.4}}
-            className="mt-5 border border-gray-200 rounded-lg p-4 bg-gray-50"
+            className={`mt-5 border rounded-lg p-4 ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-gray-50'}`}
           >
             <div className="flex justify-between mb-2">
-              <h4 className="text-sm font-semibold text-gray-900">
+              <h4 className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {view===VIEW.USE?"Monthly Drivers":"Trust Tier Breakdown"} — {expanded}
               </h4>
               <button onClick={()=>setExpanded(null)} className="text-xs text-blue-600 hover:underline">Close</button>
@@ -188,12 +190,12 @@ export default function RoiBreakdownUseCaseTrust() {
                   const meta=roiUseCaseMeta[k];
                   const val=roiBreakdownByUseCase.find(r=>r.month===expanded)?.[k]??0;
                   return(
-                    <div key={k} className="bg-white border border-gray-200 rounded-md p-3 flex flex-col">
+                    <div key={k} className={`${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-200'} border rounded-md p-3 flex flex-col`}>
                       <div className="flex items-center gap-2">
                         <span>{meta.icon}</span>
-                        <span className="text-[11px] text-gray-500">{meta.label}</span>
+                        <span className={`text-[11px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{meta.label}</span>
                       </div>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">${val.toLocaleString()}</p>
+                      <p className={`text-sm font-semibold mt-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>${val.toLocaleString()}</p>
                     </div>
                   );
                 })}
@@ -201,7 +203,7 @@ export default function RoiBreakdownUseCaseTrust() {
             ):(
               <div className="overflow-x-auto mt-3">
                   <table className="min-w-full text-xs">
-                    <thead className="bg-gray-100 text-gray-600">
+                    <thead className={`${isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
                       <tr>
                         <th className="p-2 text-left">Tier</th>
                         <th className="p-2 text-right">
@@ -211,7 +213,7 @@ export default function RoiBreakdownUseCaseTrust() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className={`divide-y ${isDarkMode ? 'divide-gray-600' : 'divide-gray-100'}`}>
                     {(() => {
                       const row = roiTrustTierByMetric.find(r=>r.month===expanded);
                       return Object.keys(row?.[trustMetricKey]||{}).map((t)=>(

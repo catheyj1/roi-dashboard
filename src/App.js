@@ -7,41 +7,49 @@ import { roiOverview } from "./data/mockData";
 import OverviewCardComparative from "./components/OverviewCardComparative";
 import RoiBreakdownUseCaseTrust from "./components/RoiBreakdownUseCaseTrust";
 import OverviewExpandedDetail from "./components/OverviewExpandedDetail";
+import { DarkModeProvider, useDarkMode } from "./contexts/DarkModeContext";
+import DarkModeToggle from "./components/DarkModeToggle";
+import "./styles/darkMode.css";
 
 // Policy Optimization Card Component
-const PolicyOptimizationCard = ({ title, current, target, roi, effort, duration }) => (
-  <div className="metric-card">
-    <div className="card-header">
-      <h4 className="text-lg font-bold text-gray-900">{title}</h4>
-      <span className="text-sm text-gray-500 flex items-center gap-1">
-        {effort.includes("Low") && "⚡"}
-        {effort.includes("Medium") && "🔧"}
-        {effort.includes("High") && "🏗"}
-        {effort} • {duration}
-      </span>
-    </div>
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-600">Current</span>
-        <span className="text-sm font-semibold text-gray-900">{current}</span>
+const PolicyOptimizationCard = ({ title, current, target, roi, effort, duration }) => {
+  const { isDarkMode } = useDarkMode();
+  
+  return (
+    <div className={`metric-card ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+      <div className="card-header">
+        <h4 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{title}</h4>
+        <span className={`text-sm flex items-center gap-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+          {effort.includes("Low") && "⚡"}
+          {effort.includes("Medium") && "🔧"}
+          {effort.includes("High") && "🏗"}
+          {effort} • {duration}
+        </span>
       </div>
-      <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-600">Target</span>
-        <span className="text-sm font-semibold text-gray-900">{target}</span>
-      </div>
-      <div className="pt-3 border-t border-gray-200">
+      <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Est. ROI</span>
-          <span className="text-lg font-bold text-green-600">{roi}</span>
+          <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Current</span>
+          <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{current}</span>
+        </div>
+        <div className="flex justify-between items-center">
+          <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Target</span>
+          <span className={`text-sm font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{target}</span>
+        </div>
+        <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+          <div className="flex justify-between items-center">
+            <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Est. ROI</span>
+            <span className="text-lg font-bold text-green-600">{roi}</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 function App() {
   const [dashboardVersion, setDashboardVersion] = useState("v1");
   const [openDetail, setOpenDetail] = useState(null);
+  const { isDarkMode } = useDarkMode();
 
   const handleExportPDF = async () => {
     await exportToPDF('v1-dashboard-content', `ROI-Dashboard-V1-${new Date().toISOString().split('T')[0]}.pdf`);
@@ -54,21 +62,22 @@ function App() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      <DarkModeToggle />
       {/* --- HEADER --- */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b shadow-sm`}>
         <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">Returns Intelligence ROI Dashboard</h1>
-              <p className="text-sm text-gray-600">RI V1 - Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
+              <h1 className={`text-2xl font-bold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Returns Intelligence ROI Dashboard</h1>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>RI V1 - Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
             </div>
             <div className="flex items-center space-x-4">
               {/* Version Selector */}
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Version:</span>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Version:</span>
                 <select
-                  className="border border-gray-200 rounded-md px-3 py-2 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                  className={`border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300 ${isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200'}`}
                   value={dashboardVersion}
                   onChange={(e) => setDashboardVersion(e.target.value)}
                 >
@@ -79,7 +88,7 @@ function App() {
               {/* PDF Export Button */}
               <button 
                 onClick={handleExportPDF}
-                className="btn-primary flex items-center gap-2"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
               >
                 <span>📄</span>
                 Export PDF
@@ -96,8 +105,8 @@ function App() {
         {/* TIER 1: OVERVIEW */}
         {/* ======================= */}
         <section>
-          <h2 className="tier-header mb-1">Tier 1 — ROI Overview</h2>
-          <p className="tier-sub">High-level descriptive analytics summarizing ROI impact and distribution across IRIS pillars.</p>
+          <h2 className={`tier-header mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Tier 1 — ROI Overview</h2>
+          <p className={`tier-sub ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>High-level descriptive analytics summarizing ROI impact and distribution across IRIS pillars.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {roiOverview.map((it) => (
               <OverviewCardComparative
@@ -118,7 +127,7 @@ function App() {
           </AnimatePresence>
         </section>
 
-        <hr className="section-divider" />
+        <hr className={`section-divider ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
         {/* ======================= */}
         {/* TIER 2: DIAGNOSTICS */}
@@ -126,9 +135,9 @@ function App() {
         <section>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1.5 h-6 bg-blue-500 rounded"></div>
-            <h2 className="tier-header">Tier 2 — Diagnostic Analytics</h2>
+            <h2 className={`tier-header ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Tier 2 — Diagnostic Analytics</h2>
           </div>
-          <p className="tier-sub">
+          <p className={`tier-sub ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             IRIS ROI performance across returns methods, trust tiers, and individual use cases.
           </p>
 
@@ -138,7 +147,7 @@ function App() {
           </div>
         </section>
 
-        <hr className="section-divider" />
+        <hr className={`section-divider ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`} />
 
         {/* ======================= */}
         {/* TIER 3: OPTIMIZATION */}
@@ -146,9 +155,9 @@ function App() {
         <section>
           <div className="flex items-center gap-2 mb-1">
             <div className="w-1.5 h-6 bg-green-500 rounded"></div>
-            <h2 className="tier-header">Tier 3 — Optimization Opportunities</h2>
+            <h2 className={`tier-header ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Tier 3 — Optimization Opportunities</h2>
           </div>
-          <p className="tier-sub">Prescriptive recommendations surfaced from ROI variance patterns and IRIS signal analysis.</p>
+          <p className={`tier-sub ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Prescriptive recommendations surfaced from ROI variance patterns and IRIS signal analysis.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <PolicyOptimizationCard
@@ -192,4 +201,11 @@ function App() {
   );
 }
 
-export default App;
+// Wrap App with DarkModeProvider
+const AppWithDarkMode = () => (
+  <DarkModeProvider>
+    <App />
+  </DarkModeProvider>
+);
+
+export default AppWithDarkMode;

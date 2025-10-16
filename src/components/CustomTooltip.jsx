@@ -1,10 +1,13 @@
 import React from "react";
+import { useDarkMode } from "../contexts/DarkModeContext";
 
 export default function CustomTooltip({ active, payload, label }) {
+  const { isDarkMode } = useDarkMode();
+  
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-3 text-xs text-gray-800">
-      <p className="font-semibold text-gray-900 mb-1">{label}</p>
+    <div className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-gray-200' : 'bg-white border-gray-200 text-gray-800'} border shadow-sm rounded-lg p-3 text-xs`}>
+      <p className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{label}</p>
       {payload.map((p)=>(
         <div key={p.dataKey} className="flex justify-between gap-2">
           <span className="flex items-center gap-1">

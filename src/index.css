@@ -5,6 +5,12 @@
 /* --- Global dashboard refinements --- */
 body {
   @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode styles */
+[data-theme="dark"] body {
+  @apply bg-gray-900 text-white;
 }
 
 section {
@@ -16,6 +22,10 @@ section {
   @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200;
 }
 
+[data-theme="dark"] .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
 .card-header {
   @apply flex items-center justify-between mb-4;
 }
@@ -24,8 +34,16 @@ section {
   @apply text-xl font-bold text-gray-900 tracking-tight;
 }
 
+[data-theme="dark"] .tier-header {
+  @apply text-white;
+}
+
 .tier-sub {
   @apply text-sm text-gray-600 mb-8 leading-relaxed;
+}
+
+[data-theme="dark"] .tier-sub {
+  @apply text-gray-300;
 }
 
 /* Professional metric cards */
@@ -33,12 +51,24 @@ section {
   @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-200;
 }
 
+[data-theme="dark"] .metric-card {
+  @apply bg-gray-800 border-gray-700;
+}
+
 .metric-value {
   @apply text-3xl font-bold text-gray-900;
 }
 
+[data-theme="dark"] .metric-value {
+  @apply text-white;
+}
+
 .metric-label {
   @apply text-sm font-medium text-gray-600 uppercase tracking-wide;
+}
+
+[data-theme="dark"] .metric-label {
+  @apply text-gray-400;
 }
 
 .metric-change {
@@ -62,6 +92,10 @@ section {
   @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
 }
 
+[data-theme="dark"] .chart-container {
+  @apply bg-gray-800 border-gray-700;
+}
+
 .chart-header {
   @apply flex items-center justify-between mb-4;
 }
@@ -70,8 +104,16 @@ section {
   @apply text-lg font-semibold text-gray-900;
 }
 
+[data-theme="dark"] .chart-title {
+  @apply text-white;
+}
+
 .chart-subtitle {
   @apply text-sm text-gray-500;
+}
+
+[data-theme="dark"] .chart-subtitle {
+  @apply text-gray-400;
 }
 
 /* Status indicators */
@@ -107,6 +149,10 @@ section {
 /* Professional dividers */
 .section-divider {
   @apply border-t border-gray-200 my-12;
+}
+
+[data-theme="dark"] .section-divider {
+  @apply border-gray-700;
 }
 
 /* Professional spacing */

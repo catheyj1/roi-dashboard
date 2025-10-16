@@ -11,20 +11,122 @@
     <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        :root {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+            --border-color: #E5E7EB;
+            --shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --text-tertiary: #9ca3af;
+            --border-color: #374151;
+            --shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+        }
+
         .section-spacing > * + * { margin-top: 3rem; }
-        .tier-header { font-size: 1.25rem; font-weight: 700; color: #111827; }
-        .tier-sub { font-size: 0.875rem; color: #6B7280; margin-bottom: 1.5rem; }
-        .section-divider { border: none; height: 1px; background: #E5E7EB; margin: 2rem 0; }
-        .metric-card { background: white; border: 1px solid #E5E7EB; border-radius: 0.75rem; padding: 1.5rem; }
+        .tier-header { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
+        .tier-sub { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+        .section-divider { border: none; height: 1px; background: var(--border-color); margin: 2rem 0; }
+        .metric-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; }
         .card-header { margin-bottom: 1rem; }
         .btn-primary { background: #2563EB; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; border: none; cursor: pointer; }
         .btn-primary:hover { background: #1D4ED8; }
+
+        /* Dark mode toggle button */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .dark-mode-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
+    
+    <!-- Dark Mode Toggle Button -->
+    <button class="dark-mode-toggle" id="darkModeToggle" aria-label="Toggle dark mode">
+        <svg id="sunIcon" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <svg id="moonIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+        </svg>
+    </button>
 
     <script type="text/babel">
+        // Dark mode functionality
+        function initDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const sunIcon = document.getElementById('sunIcon');
+            const moonIcon = document.getElementById('moonIcon');
+            const body = document.body;
+            
+            // Check for saved theme preference or default to light mode
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', currentTheme);
+            
+            // Update icon visibility
+            if (currentTheme === 'dark') {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            } else {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            }
+            
+            // Toggle theme function
+            function toggleTheme() {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                // Update icon visibility
+                if (newTheme === 'dark') {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                } else {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                }
+            }
+            
+            // Add event listener
+            darkModeToggle.addEventListener('click', toggleTheme);
+        }
         const { useState, useMemo, useEffect } = React;
         const { motion, AnimatePresence } = Motion;
         const { 
@@ -155,8 +257,8 @@
         const CustomTooltip = ({ active, payload, label }) => {
             if (active && payload && payload.length) {
                 return (
-                    <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                        <p className="font-medium text-gray-900">{label}</p>
+                    <div className="p-3 rounded-lg shadow-lg" style={{backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)'}}>
+                        <p className="font-medium" style={{color: 'var(--text-primary)'}}>{label}</p>
                         {payload.map((entry, index) => (
                             <p key={index} className="text-sm" style={{ color: entry.color }}>
                                 {entry.name}: {entry.value?.toLocaleString()}
@@ -189,18 +291,18 @@
             }, [sparkData]);
 
             return (
-                <motion.div layout className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-all">
+                <motion.div layout className="rounded-xl p-5 hover:shadow-sm transition-all" style={{backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)'}}>
                     <div className="flex items-start justify-between">
                         <div>
-                            <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                            <p className="text-3xl font-bold text-gray-900">${item.value.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Top Driver <span className="font-medium text-gray-900">{item.topDriver}</span>
+                            <p className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>{item.title}</p>
+                            <p className="text-3xl font-bold" style={{color: 'var(--text-primary)'}}>${item.value.toLocaleString()}</p>
+                            <p className="text-xs mt-1" style={{color: 'var(--text-tertiary)'}}>
+                                Top Driver <span className="font-medium" style={{color: 'var(--text-primary)'}}>{item.topDriver}</span>
                             </p>
-                            <p className="text-sm text-gray-700 mt-2">{item.description}</p>
+                            <p className="text-sm mt-2" style={{color: 'var(--text-secondary)'}}>{item.description}</p>
                         </div>
                         <div className="flex flex-col items-end gap-1">
-                            <div className="text-sm text-gray-500">{item.percent?.toFixed?.(1)}%</div>
+                            <div className="text-sm" style={{color: 'var(--text-tertiary)'}}>{item.percent?.toFixed?.(1)}%</div>
                             <div className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                 momChange >= 0 
                                     ? 'bg-green-50 text-green-700 border border-green-200' 
@@ -211,7 +313,7 @@
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[11px] text-gray-600 mt-3">
+                    <div className="flex items-center justify-between text-[11px] mt-3" style={{color: 'var(--text-secondary)'}}>
                         <span>Return Intelligence (Last 90 days)</span>
                         <span>Industry Benchmark</span>
                     </div>
@@ -288,9 +390,9 @@
             };
 
             return (
-                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <div className="rounded-xl p-6" style={{backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)'}}>
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">ROI Breakdown</h3>
+                        <h3 className="text-lg font-semibold" style={{color: 'var(--text-primary)'}}>ROI Breakdown</h3>
                         <div className="flex gap-2">
                             {Object.values(VIEW).map((v) => (
                                 <button
@@ -309,7 +411,7 @@
                     </div>
 
                     <div className="flex items-center gap-4 mb-4">
-                        <span className="text-sm text-gray-600">Metric:</span>
+                        <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Metric:</span>
                         <div className="flex gap-1">
                             {METRICS.map((m) => (
                                 <button
@@ -327,7 +429,7 @@
                         </div>
                     </div>
 
-                    <p className="text-xs text-gray-500 mb-2">Click any bar or area to explore monthly details</p>
+                    <p className="text-xs mb-2" style={{color: 'var(--text-tertiary)'}}>Click any bar or area to explore monthly details</p>
 
                     <motion.div layout className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
@@ -426,29 +528,31 @@
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="mt-4 p-4 bg-gray-50 rounded-lg"
+                            className="mt-4 p-4 rounded-lg"
+                            style={{backgroundColor: 'var(--bg-primary)'}}
                         >
                             <div className="flex justify-between items-center mb-2">
-                                <h4 className="font-medium text-gray-900">Monthly Details - {expanded}</h4>
+                                <h4 className="font-medium" style={{color: 'var(--text-primary)'}}>Monthly Details - {expanded}</h4>
                                 <button 
                                     onClick={() => setExpanded(null)}
-                                    className="text-gray-500 hover:text-gray-700"
+                                    style={{color: 'var(--text-tertiary)'}}
+                                    className="hover:opacity-70"
                                 >
                                     ✕
                                 </button>
                             </div>
                             <table className="min-w-full text-xs">
-                                <thead className="bg-gray-100 text-gray-600">
+                                <thead style={{backgroundColor: 'var(--bg-primary)'}}>
                                     <tr>
-                                        <th className="p-2 text-left">Tier</th>
-                                        <th className="p-2 text-right">
+                                        <th className="p-2 text-left" style={{color: 'var(--text-secondary)'}}>Tier</th>
+                                        <th className="p-2 text-right" style={{color: 'var(--text-secondary)'}}>
                                             {trustMetricKey === "# Returns" ? "Return Volume"
                                              : trustMetricKey === "Avg LTV" ? "Avg LTV"
                                              : "Revenue Protected"}
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y" style={{borderColor: 'var(--border-color)'}}>
                                     {(() => {
                                         const row = roiTrustTierByMetric.find(r=>r.month===expanded);
                                         return Object.keys(row?.[trustMetricKey]||{}).map((t)=>(
@@ -543,10 +647,11 @@
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all"
+                            className="rounded-xl p-5 hover:shadow-md transition-all"
+                            style={{backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)'}}
                         >
                             <div className="flex items-start justify-between mb-3">
-                                <h4 className="font-semibold text-gray-900">{useCase.name}</h4>
+                                <h4 className="font-semibold" style={{color: 'var(--text-primary)'}}>{useCase.name}</h4>
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                     useCase.status === 'exceeding' ? 'bg-green-100 text-green-800' :
                                     useCase.status === 'stable' ? 'bg-blue-100 text-blue-800' :
@@ -559,20 +664,20 @@
                             
                             <div className="space-y-2 mb-4">
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">ROI</span>
-                                    <span className="font-semibold text-gray-900">${useCase.roi.toLocaleString()}</span>
+                                    <span className="text-sm" style={{color: 'var(--text-secondary)'}}>ROI</span>
+                                    <span className="font-semibold" style={{color: 'var(--text-primary)'}}>${useCase.roi.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">Opportunity</span>
+                                    <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Opportunity</span>
                                     <span className="font-semibold text-blue-600">+${useCase.opportunity.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-sm text-gray-600">Lift</span>
-                                    <span className="font-semibold text-gray-900">+{useCase.lift}%</span>
+                                    <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Lift</span>
+                                    <span className="font-semibold" style={{color: 'var(--text-primary)'}}>+{useCase.lift}%</span>
                                 </div>
                             </div>
                             
-                            <p className="text-sm text-gray-600">{useCase.description}</p>
+                            <p className="text-sm" style={{color: 'var(--text-secondary)'}}>{useCase.description}</p>
                         </motion.div>
                     ))}
                 </div>
@@ -583,8 +688,8 @@
         const PolicyOptimizationCard = ({ title, current, target, roi, effort, duration }) => (
             <div className="metric-card">
                 <div className="card-header">
-                    <h4 className="text-lg font-bold text-gray-900">{title}</h4>
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
+                    <h4 className="text-lg font-bold" style={{color: 'var(--text-primary)'}}>{title}</h4>
+                    <span className="text-sm flex items-center gap-1" style={{color: 'var(--text-tertiary)'}}>
                         {effort.includes("Low") && "⚡"}
                         {effort.includes("Medium") && "🔧"}
                         {effort.includes("High") && "🏗"}
@@ -593,16 +698,16 @@
                 </div>
                 <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Current</span>
-                        <span className="text-sm font-semibold text-gray-900">{current}</span>
+                        <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Current</span>
+                        <span className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>{current}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Target</span>
-                        <span className="text-sm font-semibold text-gray-900">{target}</span>
+                        <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Target</span>
+                        <span className="text-sm font-semibold" style={{color: 'var(--text-primary)'}}>{target}</span>
                     </div>
-                    <div className="pt-3 border-t border-gray-200">
+                    <div className="pt-3 border-t" style={{borderColor: 'var(--border-color)'}}>
                         <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-600">Est. ROI</span>
+                            <span className="text-sm" style={{color: 'var(--text-secondary)'}}>Est. ROI</span>
                             <span className="text-lg font-bold text-green-600">{roi}</span>
                         </div>
                     </div>
@@ -613,14 +718,14 @@
         // Main App Component
         const App = () => {
             return (
-                <div className="min-h-screen bg-gray-50 text-gray-900">
+                <div className="min-h-screen" style={{backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)'}}>
                     {/* Header */}
-                    <header className="bg-white border-b border-gray-200 shadow-sm">
+                    <header style={{backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)', boxShadow: 'var(--shadow)'}}>
                         <div className="max-w-7xl mx-auto px-6 py-5">
                             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                                 <div>
-                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Returns Intelligence ROI Dashboard</h1>
-                                    <p className="text-sm text-gray-600">Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
+                                    <h1 className="text-2xl font-bold mb-1" style={{color: 'var(--text-primary)'}}>Returns Intelligence ROI Dashboard</h1>
+                                    <p className="text-sm" style={{color: 'var(--text-secondary)'}}>Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
                                 </div>
                             </div>
                         </div>
@@ -713,6 +818,9 @@
                 </div>
             );
         };
+
+        // Initialize dark mode
+        initDarkMode();
 
         // Render the app
         ReactDOM.render(<App />, document.getElementById('root'));

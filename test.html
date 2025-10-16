@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Test</title>
+</head>
+<body>
+    <h1>Dashboard Test</h1>
+    <p>If you can see this, the GitHub Pages is working.</p>
+    <p>Now let's test the main dashboard:</p>
+    <a href="https://catheyj1.github.io/roi-dashboard/" target="_blank">Open ROI Dashboard</a>
+    
+    <script>
+        // Test if the main JS file loads
+        fetch('https://catheyj1.github.io/roi-dashboard/static/js/main.fbdc6c55.js')
+            .then(response => {
+                if (response.ok) {
+                    document.body.innerHTML += '<p style="color: green;">✅ JavaScript file loads successfully</p>';
+                } else {
+                    document.body.innerHTML += '<p style="color: red;">❌ JavaScript file failed to load</p>';
+                }
+            })
+            .catch(error => {
+                document.body.innerHTML += '<p style="color: red;">❌ Error loading JavaScript: ' + error.message + '</p>';
+            });
+            
+        // Test if the main CSS file loads
+        fetch('https://catheyj1.github.io/roi-dashboard/static/css/main.e5d71c55.css')
+            .then(response => {
+                if (response.ok) {
+                    document.body.innerHTML += '<p style="color: green;">✅ CSS file loads successfully</p>';
+                } else {
+                    document.body.innerHTML += '<p style="color: red;">❌ CSS file failed to load</p>';
+                }
+            })
+            .catch(error => {
+                document.body.innerHTML += '<p style="color: red;">❌ Error loading CSS: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

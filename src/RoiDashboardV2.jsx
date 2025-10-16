@@ -11,12 +11,8 @@ import {
   LineChart,
   Line,
   Legend,
-  // eslint-disable-next-line no-unused-vars
-  ComposedChart,
   Area,
-  AreaChart,
-  // eslint-disable-next-line no-unused-vars
-  Cell
+  AreaChart
 } from "recharts";
 import { exportToPDF } from "./utils/pdfExport";
 

@@ -1,1 +1,543 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="/favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Returns Intelligence ROI Dashboard"/><link rel="apple-touch-icon" href="/logo192.png"/><link rel="manifest" href="/manifest.json"/><title>Returns Intelligence ROI Dashboard</title><script defer="defer" src="/static/js/main.fbdc6c55.js"></script><link href="/static/css/main.e5d71c55.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns Intelligence ROI Dashboard</title>
+    <style>
+        /* Tailwind CSS - Essential classes only */
+        .section-spacing > * + * { margin-top: 3rem; }
+        .tier-header { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .tier-sub { font-size: 0.875rem; color: #6B7280; margin-bottom: 1.5rem; }
+        .section-divider { border: none; height: 1px; background: #E5E7EB; margin: 2rem 0; }
+        .metric-card { background: white; border: 1px solid #E5E7EB; border-radius: 0.75rem; padding: 1.5rem; }
+        .card-header { margin-bottom: 1rem; }
+        .btn-primary { background: #2563EB; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; border: none; cursor: pointer; }
+        .btn-primary:hover { background: #1D4ED8; }
+        
+        /* Loading state */
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #6B7280;
+            z-index: 1000;
+        }
+        
+        /* Essential utility classes */
+        .bg-gray-50 { background-color: #f9fafb; }
+        .bg-white { background-color: white; }
+        .text-gray-900 { color: #111827; }
+        .text-gray-600 { color: #4b5563; }
+        .text-gray-500 { color: #6b7280; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .rounded-xl { border-radius: 0.75rem; }
+        .p-5 { padding: 1.25rem; }
+        .p-6 { padding: 1.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-1 { margin-bottom: 0.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-10 { margin-top: 2.5rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-1 { gap: 0.25rem; }
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .items-start { align-items: flex-start; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: 700; }
+        .font-semibold { font-weight: 600; }
+        .font-medium { font-weight: 500; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .border { border-width: 1px; }
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .hover\\:shadow-md:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); }
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .min-h-screen { min-height: 100vh; }
+        .max-w-7xl { max-width: 80rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-1\\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-1\\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+        .rounded { border-radius: 0.25rem; }
+        .rounded-md { border-radius: 0.375rem; }
+        .rounded-full { border-radius: 9999px; }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-10 > * + * { margin-top: 2.5rem; }
+        .divide-y > * + * { border-top-width: 1px; }
+        .divide-gray-100 { border-color: #f3f4f6; }
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .bg-green-50 { background-color: #f0fdf4; }
+        .bg-green-100 { background-color: #dcfce7; }
+        .bg-red-50 { background-color: #fef2f2; }
+        .bg-red-100 { background-color: #fee2e2; }
+        .bg-blue-50 { background-color: #eff6ff; }
+        .bg-blue-100 { background-color: #dbeafe; }
+        .bg-yellow-100 { background-color: #fef3c7; }
+        .text-green-700 { color: #15803d; }
+        .text-green-800 { color: #166534; }
+        .text-red-700 { color: #b91c1c; }
+        .text-red-800 { color: #991b1b; }
+        .text-blue-600 { color: #2563eb; }
+        .text-blue-700 { color: #1d4ed8; }
+        .text-blue-800 { color: #1e40af; }
+        .text-yellow-800 { color: #92400e; }
+        .border-green-200 { border-color: #bbf7d0; }
+        .border-red-200 { border-color: #fecaca; }
+        .border-gray-200 { border-color: #e5e7eb; }
+        .border-blue-600 { border-color: #2563eb; }
+        .bg-blue-600 { background-color: #2563eb; }
+        .text-white { color: white; }
+        .bg-gray-900 { background-color: #111827; }
+        .bg-gray-100 { background-color: #f3f4f6; }
+        .hover\\:bg-gray-50:hover { background-color: #f9fafb; }
+        .hover\\:bg-gray-200:hover { background-color: #e5e7eb; }
+        .hover\\:text-gray-700:hover { color: #374151; }
+        .cursor-pointer { cursor: pointer; }
+        .w-1\\.5 { width: 0.375rem; }
+        .h-6 { height: 1.5rem; }
+        .h-20 { height: 5rem; }
+        .h-64 { height: 16rem; }
+        .h-28 { height: 7rem; }
+        .text-\\[10px\\] { font-size: 10px; }
+        .text-\\[11px\\] { font-size: 11px; }
+        .leading-snug { line-height: 1.375; }
+        .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+        .from-green-600 { --tw-gradient-from: #16a34a; --tw-gradient-to: rgb(22 163 74 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+        .to-blue-600 { --tw-gradient-to: #2563eb; }
+        .text-blue-50 { color: #eff6ff; }
+        .min-w-full { min-width: 100%; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .p-2 { padding: 0.5rem; }
+        .pt-3 { padding-top: 0.75rem; }
+        .border-t { border-top-width: 1px; }
+        .text-green-600 { color: #16a34a; }
+        .text-\\[10px\\] { font-size: 10px; }
+        .text-\\[11px\\] { font-size: 11px; }
+        
+        @media (min-width: 768px) {
+            .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">Loading Dashboard...</div>
+    <div id="root" style="display: none;"></div>
+
+    <script>
+        // Simple React-like implementation for standalone use
+        const React = {
+            createElement: (type, props, ...children) => {
+                const element = document.createElement(type);
+                if (props) {
+                    Object.keys(props).forEach(key => {
+                        if (key === 'className') {
+                            element.className = props[key];
+                        } else if (key === 'style') {
+                            Object.assign(element.style, props[key]);
+                        } else if (key.startsWith('on')) {
+                            element.addEventListener(key.slice(2).toLowerCase(), props[key]);
+                        } else {
+                            element.setAttribute(key, props[key]);
+                        }
+                    });
+                }
+                children.forEach(child => {
+                    if (typeof child === 'string') {
+                        element.appendChild(document.createTextNode(child));
+                    } else if (child) {
+                        element.appendChild(child);
+                    }
+                });
+                return element;
+            },
+            useState: (initial) => {
+                let state = initial;
+                const setState = (newState) => {
+                    state = typeof newState === 'function' ? newState(state) : newState;
+                    render();
+                };
+                return [state, setState];
+            },
+            useMemo: (fn, deps) => fn(),
+            useEffect: (fn, deps) => fn()
+        };
+
+        const ReactDOM = {
+            render: (element, container) => {
+                container.innerHTML = '';
+                container.appendChild(element);
+            }
+        };
+
+        // Simple chart implementation using Canvas
+        const createSimpleChart = (container, data, type = 'line') => {
+            const canvas = document.createElement('canvas');
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            const ctx = canvas.getContext('2d');
+            
+            if (type === 'line') {
+                ctx.strokeStyle = '#2563EB';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                data.forEach((point, index) => {
+                    const x = (index / (data.length - 1)) * canvas.width;
+                    const y = canvas.height - (point / Math.max(...data)) * canvas.height;
+                    if (index === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                ctx.stroke();
+            }
+            
+            container.appendChild(canvas);
+        };
+
+        // Mock Data
+        const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const rand = (min, max) => Math.round(min + Math.random() * (max - min));
+
+        const roiOverview = [
+            {
+                key: "total_roi",
+                title: "Total ROI Captured",
+                value: 610000,
+                percent: 55.2,
+                topDriver: "Early Refund",
+                description: "IRIS has captured 55% of total ROI opportunity through intelligent return routing and fraud prevention.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 45000 + i*2000 + rand(-3000,3000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 38000 + i*1500 + rand(-2000,2000)}))
+            },
+            {
+                key: "revenue_protected",
+                title: "Revenue Protected",
+                value: 2850000,
+                percent: 42.8,
+                topDriver: "Fraud Detection",
+                description: "Advanced fraud detection and boxless enforcement prevented $2.85M in fraudulent returns.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 220000 + i*8000 + rand(-15000,15000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 180000 + i*6000 + rand(-10000,10000)}))
+            },
+            {
+                key: "ltv_impact",
+                title: "Customer LTV Impact",
+                value: 1250000,
+                percent: 18.3,
+                topDriver: "KTI High-Trust",
+                description: "High-trust customer retention and repeat purchase rates increased by 18.3% through optimized return experiences.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 95000 + i*3000 + rand(-5000,5000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 75000 + i*2000 + rand(-3000,3000)}))
+            }
+        ];
+
+        const useCases = [
+            {
+                name: "Early Refund",
+                pillar: "Growth",
+                roi: 175000,
+                lift: 12,
+                trust: "High",
+                opportunity: 25000,
+                status: "exceeding",
+                description: "Instant refunds for high-trust customers driving LTV and repeat purchases."
+            },
+            {
+                name: "KTI High-Trust",
+                pillar: "Growth",
+                roi: 95000,
+                lift: 8,
+                trust: "High",
+                opportunity: 15000,
+                status: "stable",
+                description: "Keep the item decisions for high-value customers improve retention."
+            },
+            {
+                name: "Inspection",
+                pillar: "Protection",
+                roi: 125000,
+                lift: 15,
+                trust: "Low",
+                opportunity: 30000,
+                status: "exceeding",
+                description: "Automated inspection routing prevents fraudulent returns."
+            },
+            {
+                name: "FTID",
+                pillar: "Protection",
+                roi: 75000,
+                lift: 9,
+                trust: "Low",
+                opportunity: 20000,
+                status: "underperforming",
+                description: "Fake tracking ID detection reduces return abuse."
+            },
+            {
+                name: "Blocklist",
+                pillar: "Protection",
+                roi: 50000,
+                lift: 6,
+                trust: "Low",
+                opportunity: 10000,
+                status: "stable",
+                description: "Known fraudster blocking prevents repeat abuse."
+            },
+            {
+                name: "Boxless",
+                pillar: "Efficiency",
+                roi: 60000,
+                lift: 7,
+                trust: "Medium",
+                opportunity: 18000,
+                status: "improving",
+                description: "Boxless returns reduce operational costs by 18%."
+            }
+        ];
+
+        // Overview Card Component
+        const OverviewCard = ({ item }) => {
+            const sparkData = item.iris90d.slice(-3).map(p => p.value);
+            const industryData = item.industry90d.slice(-3).map(p => p.value + 15);
+            
+            return React.createElement('div', { className: 'bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-all' },
+                React.createElement('div', { className: 'flex items-start justify-between' },
+                    React.createElement('div', null,
+                        React.createElement('p', { className: 'text-sm font-semibold text-gray-900' }, item.title),
+                        React.createElement('p', { className: 'text-3xl font-bold text-gray-900' }, `$${item.value.toLocaleString()}`),
+                        React.createElement('p', { className: 'text-xs text-gray-500 mt-1' },
+                            'Top Driver ', React.createElement('span', { className: 'font-medium text-gray-900' }, item.topDriver)
+                        ),
+                        React.createElement('p', { className: 'text-sm text-gray-700 mt-2' }, item.description)
+                    ),
+                    React.createElement('div', { className: 'flex flex-col items-end gap-1' },
+                        React.createElement('div', { className: 'text-sm text-gray-500' }, `${item.percent?.toFixed?.(1)}%`),
+                        React.createElement('div', { className: 'inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-50 text-green-700 border border-green-200' }, '+12%')
+                    )
+                ),
+                React.createElement('div', { className: 'flex items-center justify-between text-[11px] text-gray-600 mt-3' },
+                    React.createElement('span', null, 'Return Intelligence (Last 90 days)'),
+                    React.createElement('span', null, 'Industry Benchmark')
+                ),
+                React.createElement('div', { className: 'h-20 mt-2 relative', id: `chart-${item.key}` })
+            );
+        };
+
+        // Use Case Card Component
+        const UseCaseCard = ({ useCase }) => {
+            const statusColors = {
+                'exceeding': 'bg-green-100 text-green-800',
+                'stable': 'bg-blue-100 text-blue-800',
+                'improving': 'bg-yellow-100 text-yellow-800',
+                'underperforming': 'bg-red-100 text-red-800'
+            };
+
+            return React.createElement('div', { className: 'bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all' },
+                React.createElement('div', { className: 'flex items-start justify-between mb-3' },
+                    React.createElement('h4', { className: 'font-semibold text-gray-900' }, useCase.name),
+                    React.createElement('span', { className: `px-2 py-1 rounded-full text-xs font-medium ${statusColors[useCase.status]}` }, useCase.status)
+                ),
+                React.createElement('div', { className: 'space-y-2 mb-4' },
+                    React.createElement('div', { className: 'flex justify-between' },
+                        React.createElement('span', { className: 'text-sm text-gray-600' }, 'ROI'),
+                        React.createElement('span', { className: 'font-semibold text-gray-900' }, `$${useCase.roi.toLocaleString()}`)
+                    ),
+                    React.createElement('div', { className: 'flex justify-between' },
+                        React.createElement('span', { className: 'text-sm text-gray-600' }, 'Opportunity'),
+                        React.createElement('span', { className: 'font-semibold text-blue-600' }, `+$${useCase.opportunity.toLocaleString()}`)
+                    ),
+                    React.createElement('div', { className: 'flex justify-between' },
+                        React.createElement('span', { className: 'text-sm text-gray-600' }, 'Lift'),
+                        React.createElement('span', { className: 'font-semibold text-gray-900' }, `+${useCase.lift}%`)
+                    )
+                ),
+                React.createElement('p', { className: 'text-sm text-gray-600' }, useCase.description)
+            );
+        };
+
+        // Policy Optimization Card Component
+        const PolicyOptimizationCard = ({ title, current, target, roi, effort, duration }) => {
+            const effortIcons = {
+                'Low Effort': '⚡',
+                'Medium Effort': '🔧',
+                'High Effort': '🏗'
+            };
+
+            return React.createElement('div', { className: 'metric-card' },
+                React.createElement('div', { className: 'card-header' },
+                    React.createElement('h4', { className: 'text-lg font-bold text-gray-900' }, title),
+                    React.createElement('span', { className: 'text-sm text-gray-500 flex items-center gap-1' },
+                        effortIcons[effort] || '⚡',
+                        `${effort} • ${duration}`
+                    )
+                ),
+                React.createElement('div', { className: 'space-y-4' },
+                    React.createElement('div', { className: 'flex justify-between items-center' },
+                        React.createElement('span', { className: 'text-sm text-gray-600' }, 'Current'),
+                        React.createElement('span', { className: 'text-sm font-semibold text-gray-900' }, current)
+                    ),
+                    React.createElement('div', { className: 'flex justify-between items-center' },
+                        React.createElement('span', { className: 'text-sm text-gray-600' }, 'Target'),
+                        React.createElement('span', { className: 'text-sm font-semibold text-gray-900' }, target)
+                    ),
+                    React.createElement('div', { className: 'pt-3 border-t border-gray-200' },
+                        React.createElement('div', { className: 'flex justify-between items-center' },
+                            React.createElement('span', { className: 'text-sm text-gray-600' }, 'Est. ROI'),
+                            React.createElement('span', { className: 'text-lg font-bold text-green-600' }, roi)
+                        )
+                    )
+                )
+            );
+        };
+
+        // Main App Component
+        const App = () => {
+            return React.createElement('div', { className: 'min-h-screen bg-gray-50 text-gray-900' },
+                // Header
+                React.createElement('header', { className: 'bg-white border-b border-gray-200 shadow-sm' },
+                    React.createElement('div', { className: 'max-w-7xl mx-auto px-6 py-5' },
+                        React.createElement('div', { className: 'flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4' },
+                            React.createElement('div', null,
+                                React.createElement('h1', { className: 'text-2xl font-bold text-gray-900 mb-1' }, 'Returns Intelligence ROI Dashboard'),
+                                React.createElement('p', { className: 'text-sm text-gray-600' }, 'Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"')
+                            )
+                        )
+                    )
+                ),
+                // Main Content
+                React.createElement('main', { className: 'max-w-7xl mx-auto px-6 py-12 section-spacing' },
+                    // Tier 1: Overview
+                    React.createElement('section', null,
+                        React.createElement('h2', { className: 'tier-header mb-1' }, 'Tier 1 — ROI Overview'),
+                        React.createElement('p', { className: 'tier-sub' }, 'High-level descriptive analytics summarizing ROI impact and distribution across IRIS pillars.'),
+                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-6' },
+                            ...roiOverview.map(item => React.createElement(OverviewCard, { key: item.key, item }))
+                        )
+                    ),
+                    React.createElement('hr', { className: 'section-divider' }),
+                    // Tier 2: Diagnostics
+                    React.createElement('section', null,
+                        React.createElement('div', { className: 'flex items-center gap-2 mb-1' },
+                            React.createElement('div', { className: 'w-1.5 h-6 bg-blue-500 rounded' }),
+                            React.createElement('h2', { className: 'tier-header' }, 'Tier 2 — Diagnostic Analytics')
+                        ),
+                        React.createElement('p', { className: 'tier-sub' }, 'IRIS ROI performance across returns methods, trust tiers, and individual use cases.'),
+                        React.createElement('div', { className: 'space-y-10' },
+                            React.createElement('div', { className: 'bg-white border border-gray-200 rounded-xl p-6' },
+                                React.createElement('h3', { className: 'text-lg font-semibold text-gray-900 mb-4' }, 'ROI Breakdown by Use Case'),
+                                React.createElement('div', { className: 'h-64 bg-gray-50 rounded flex items-center justify-center' },
+                                    React.createElement('p', { className: 'text-gray-500' }, 'Interactive chart would be here')
+                                )
+                            ),
+                            React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' },
+                                ...useCases.map(useCase => React.createElement(UseCaseCard, { key: useCase.name, useCase }))
+                            )
+                        )
+                    ),
+                    React.createElement('hr', { className: 'section-divider' }),
+                    // Tier 3: Optimization
+                    React.createElement('section', null,
+                        React.createElement('div', { className: 'flex items-center gap-2 mb-1' },
+                            React.createElement('div', { className: 'w-1.5 h-6 bg-green-500 rounded' }),
+                            React.createElement('h2', { className: 'tier-header' }, 'Tier 3 — Optimization Opportunities')
+                        ),
+                        React.createElement('p', { className: 'tier-sub' }, 'Prescriptive recommendations surfaced from ROI variance patterns and IRIS signal analysis.'),
+                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-3 gap-4' },
+                            React.createElement(PolicyOptimizationCard, {
+                                title: "Relax KTI suppression overlap",
+                                current: "68%",
+                                target: "<40%",
+                                roi: "+$12.4K",
+                                effort: "Low Effort",
+                                duration: "1 week"
+                            }),
+                            React.createElement(PolicyOptimizationCard, {
+                                title: "Adjust Boxless threshold",
+                                current: "12%",
+                                target: "8%",
+                                roi: "+$8.7K",
+                                effort: "Medium Effort",
+                                duration: "2 weeks"
+                            }),
+                            React.createElement(PolicyOptimizationCard, {
+                                title: "Increase IRIS weight in refund timing",
+                                current: "0.3x",
+                                target: "0.6x",
+                                roi: "+$5.3K",
+                                effort: "Low Effort",
+                                duration: "3 days"
+                            })
+                        ),
+                        // Inline summary band
+                        React.createElement('div', { className: 'mt-10 bg-gradient-to-r from-green-600 to-blue-600 text-white p-5 rounded-xl shadow-sm' },
+                            React.createElement('h3', { className: 'text-sm font-semibold mb-1' }, 'Next ROI Unlock Potential'),
+                            React.createElement('p', { className: 'text-sm text-blue-50 leading-snug' },
+                                'IRIS has captured ', React.createElement('span', { className: 'font-bold text-white' }, '55%'), ' of total ROI opportunity. Expanding Early Refund and optimizing KTI thresholds can deliver another ',
+                                React.createElement('span', { className: 'font-bold text-white' }, ' $363K'), ' in value.'
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        // Initialize the app
+        function initializeApp() {
+            try {
+                // Hide loading and show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('root').style.display = 'block';
+
+                // Render the app
+                ReactDOM.render(React.createElement(App), document.getElementById('root'));
+
+                // Add simple charts to overview cards
+                setTimeout(() => {
+                    roiOverview.forEach(item => {
+                        const container = document.getElementById(`chart-${item.key}`);
+                        if (container) {
+                            const sparkData = item.iris90d.slice(-3).map(p => p.value);
+                            createSimpleChart(container, sparkData, 'line');
+                        }
+                    });
+                }, 100);
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                document.getElementById('loading').innerHTML = 'Error loading dashboard. Please refresh the page.';
+            }
+        }
+
+        // Start the app
+        initializeApp();
+    </script>
+</body>
+</html>

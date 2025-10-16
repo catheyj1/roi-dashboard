@@ -104,7 +104,7 @@ export default function RoiBreakdownUseCaseTrust() {
               <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
               <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
               <Legend wrapperStyle={{fontSize:10, color:"#6B7280"}}/>
-              <CustomTooltip />
+              <Tooltip content={<CustomTooltip/>}/>
               {activeUseKeys.map((k)=>{
                 const gradientMap = {
                   'early_refund': 'url(#earlyRefundGrad)',

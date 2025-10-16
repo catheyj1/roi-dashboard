@@ -1,11 +1,18 @@
 export const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* ----------------- helpers ----------------- */
-const rand = (min, max) => Math.round(min + Math.random() * (max - min));
+// Seeded random function for consistent data
+let seed = 12345;
+const seededRandom = () => {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+};
+
+const rand = (min, max) => Math.round(min + seededRandom() * (max - min));
 export const gen90d = (base = 100, amp = 12) =>
   Array.from({ length: 90 }).map((_, i) => ({
     day: i + 1,
-    value: Math.round(base + Math.sin(i / 7) * amp + (Math.random() - 0.5) * amp)
+    value: Math.round(base + Math.sin(i / 7) * amp + (seededRandom() - 0.5) * amp)
   }));
 
 export const toSparkMonths = (series) => {
@@ -210,9 +217,9 @@ export const roiSummary = {
   months: Array.from({ length: 12 }).map((_, i) => ({
     month: MONTHS[i],
     // realistic variability
-    growth: 22000 + Math.sin(i / 1.4) * 4000 + Math.random() * 2000,
-    protection: 18000 + Math.cos(i / 1.7) * 3500 + Math.random() * 1500,
-    efficiency: 13000 + Math.sin(i / 1.2) * 2500 + Math.random() * 1000
+    growth: 22000 + Math.sin(i / 1.4) * 4000 + seededRandom() * 2000,
+    protection: 18000 + Math.cos(i / 1.7) * 3500 + seededRandom() * 1500,
+    efficiency: 13000 + Math.sin(i / 1.2) * 2500 + seededRandom() * 1000
   })),
   benchmarks: {
     growth: { value: 0.07, label: "+7% vs industry" },
@@ -226,9 +233,9 @@ export const roiSummary = {
 // ----------------------------------------------
 export const roiBreakdown12m = Array.from({ length: 12 }).map((_, i) => ({
   month: MONTHS[i],
-  Growth: 80000 + Math.sin(i / 1.25) * 9000 + (i % 3 === 0 ? 11000 : 0) + Math.random() * 3500,
-  Protection: 65000 + Math.cos(i / 1.5) * 7000 + (i % 2 === 0 ? 8500 : 0) + Math.random() * 2500,
-  Efficiency: 48000 + Math.sin(i / 1.1) * 5000 + (i === 11 ? 12000 : 0) + Math.random() * 1800,
+  Growth: 80000 + Math.sin(i / 1.25) * 9000 + (i % 3 === 0 ? 11000 : 0) + seededRandom() * 3500,
+  Protection: 65000 + Math.cos(i / 1.5) * 7000 + (i % 2 === 0 ? 8500 : 0) + seededRandom() * 2500,
+  Efficiency: 48000 + Math.sin(i / 1.1) * 5000 + (i === 11 ? 12000 : 0) + seededRandom() * 1800,
   // Detailed drill-ins per month
   methods: [
     { name: "Forced Boxless", type: "Protection", value: 18000, impact: "↓ Fraud via in-network verification" },
@@ -328,7 +335,7 @@ export const useCaseData = [
     ],
     series: MONTHS.map((m, i) => ({
       month: m,
-      ROI: 15000 + Math.sin(i / 1.4) * 2000 + Math.random() * 1500
+      ROI: 15000 + Math.sin(i / 1.4) * 2000 + seededRandom() * 1500
     }))
   },
   {
@@ -351,7 +358,7 @@ export const useCaseData = [
     ],
     series: MONTHS.map((m, i) => ({
       month: m,
-      ROI: 9000 + Math.cos(i / 1.6) * 2500 + Math.random() * 1200
+      ROI: 9000 + Math.cos(i / 1.6) * 2500 + seededRandom() * 1200
     }))
   },
   {
@@ -374,7 +381,7 @@ export const useCaseData = [
     ],
     series: MONTHS.map((m, i) => ({
       month: m,
-      ROI: 7000 + Math.sin(i / 1.1) * 1800 + Math.random() * 1000
+      ROI: 7000 + Math.sin(i / 1.1) * 1800 + seededRandom() * 1000
     }))
   },
   {
@@ -397,7 +404,7 @@ export const useCaseData = [
     ],
     series: MONTHS.map((m, i) => ({
       month: m,
-      ROI: 6000 + Math.sin(i / 1.3) * 2000 + Math.random() * 1500
+      ROI: 6000 + Math.sin(i / 1.3) * 2000 + seededRandom() * 1500
     }))
   },
   {
@@ -420,7 +427,7 @@ export const useCaseData = [
     ],
     series: MONTHS.map((m, i) => ({
       month: m,
-      ROI: 4500 + Math.cos(i / 1.5) * 1500 + Math.random() * 800
+      ROI: 4500 + Math.cos(i / 1.5) * 1500 + seededRandom() * 800
     }))
   }
 ];

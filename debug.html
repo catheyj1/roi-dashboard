@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Debug</title>
+</head>
+<body>
+    <h1>Dashboard Debug</h1>
+    <div id="status"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        
+        // Test if React is available
+        function testReact() {
+            if (typeof React !== 'undefined') {
+                status.innerHTML += '<p style="color: green;">✅ React is loaded</p>';
+                return true;
+            } else {
+                status.innerHTML += '<p style="color: red;">❌ React is not loaded</p>';
+                return false;
+            }
+        }
+        
+        // Test if ReactDOM is available
+        function testReactDOM() {
+            if (typeof ReactDOM !== 'undefined') {
+                status.innerHTML += '<p style="color: green;">✅ ReactDOM is loaded</p>';
+                return true;
+            } else {
+                status.innerHTML += '<p style="color: red;">❌ ReactDOM is not loaded</p>';
+                return false;
+            }
+        }
+        
+        // Test if the main JS file loads
+        function testMainJS() {
+            return fetch('https://catheyj1.github.io/roi-dashboard/static/js/main.fbdc6c55.js')
+                .then(response => {
+                    if (response.ok) {
+                        status.innerHTML += '<p style="color: green;">✅ Main JS file loads successfully</p>';
+                        return true;
+                    } else {
+                        status.innerHTML += '<p style="color: red;">❌ Main JS file failed to load</p>';
+                        return false;
+                    }
+                })
+                .catch(error => {
+                    status.innerHTML += '<p style="color: red;">❌ Error loading Main JS: ' + error.message + '</p>';
+                    return false;
+                });
+        }
+        
+        // Test if the main CSS file loads
+        function testMainCSS() {
+            return fetch('https://catheyj1.github.io/roi-dashboard/static/css/main.e5d71c55.css')
+                .then(response => {
+                    if (response.ok) {
+                        status.innerHTML += '<p style="color: green;">✅ Main CSS file loads successfully</p>';
+                        return true;
+                    } else {
+                        status.innerHTML += '<p style="color: red;">❌ Main CSS file failed to load</p>';
+                        return false;
+                    }
+                })
+                .catch(error => {
+                    status.innerHTML += '<p style="color: red;">❌ Error loading Main CSS: ' + error.message + '</p>';
+                    return false;
+                });
+        }
+        
+        // Test if the main page loads
+        function testMainPage() {
+            return fetch('https://catheyj1.github.io/roi-dashboard/')
+                .then(response => {
+                    if (response.ok) {
+                        status.innerHTML += '<p style="color: green;">✅ Main page loads successfully</p>';
+                        return response.text();
+                    } else {
+                        status.innerHTML += '<p style="color: red;">❌ Main page failed to load</p>';
+                        return null;
+                    }
+                })
+                .catch(error => {
+                    status.innerHTML += '<p style="color: red;">❌ Error loading Main page: ' + error.message + '</p>';
+                    return null;
+                });
+        }
+        
+        // Run all tests
+        async function runTests() {
+            status.innerHTML = '<p>Running tests...</p>';
+            
+            const reactLoaded = testReact();
+            const reactDOMLoaded = testReactDOM();
+            const mainJSLoaded = await testMainJS();
+            const mainCSSLoaded = await testMainCSS();
+            const mainPageLoaded = await testMainPage();
+            
+            if (mainPageLoaded) {
+                // Check if the page contains the root div
+                if (mainPageLoaded.includes('<div id="root"></div>')) {
+                    status.innerHTML += '<p style="color: green;">✅ Main page contains root div</p>';
+                } else {
+                    status.innerHTML += '<p style="color: red;">❌ Main page does not contain root div</p>';
+                }
+                
+                // Check if the page contains the script tag
+                if (mainPageLoaded.includes('main.fbdc6c55.js')) {
+                    status.innerHTML += '<p style="color: green;">✅ Main page contains script tag</p>';
+                } else {
+                    status.innerHTML += '<p style="color: red;">❌ Main page does not contain script tag</p>';
+                }
+            }
+            
+            // Summary
+            const allTestsPassed = reactLoaded && reactDOMLoaded && mainJSLoaded && mainCSSLoaded && mainPageLoaded;
+            if (allTestsPassed) {
+                status.innerHTML += '<p style="color: green; font-weight: bold;">✅ All tests passed! The dashboard should be working.</p>';
+            } else {
+                status.innerHTML += '<p style="color: red; font-weight: bold;">❌ Some tests failed. Check the errors above.</p>';
+            }
+        }
+        
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>

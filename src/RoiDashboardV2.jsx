@@ -49,26 +49,6 @@ const HeaderMetaKPI = ({ roiPercent = 55, delta = 5, kpiPeriod, setKpiPeriod }) 
   </div>
 );
 
-// Simplified KPI Card with unified iconography
-const KpiCard = ({ icon, title, value, sublabel, deltaText, deltaTone = "positive" }) => {
-  const tone = deltaTone === "positive" ? "text-green-600" : deltaTone === "negative" ? "text-red-600" : "text-gray-600";
-  
-  return (
-    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex items-center">
-          <div className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center mr-3">
-            {icon}
-          </div>
-          <div className="text-sm font-medium text-gray-700">{title}</div>
-        </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full bg-gray-100 ${tone}`}>{deltaText}</span>
-      </div>
-      <div className="text-3xl font-semibold text-gray-900 mb-1">{value}</div>
-      {sublabel && <div className="text-sm text-gray-500 truncate">{sublabel}</div>}
-    </div>
-  );
-};
 
 
 // Trust Mix Composition - Executive Enhanced

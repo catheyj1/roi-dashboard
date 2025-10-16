@@ -11,12 +11,8 @@ import {
   LineChart,
   Line,
   Legend,
-  // eslint-disable-next-line no-unused-vars
-  ComposedChart,
   Area,
-  AreaChart,
-  // eslint-disable-next-line no-unused-vars
-  Cell
+  AreaChart
 } from "recharts";
 import { exportToPDF } from "./utils/pdfExport";
 
@@ -367,9 +363,7 @@ const OutcomeMetricGrid = () => {
 
 
 
-// Revenue Protection Breakdown - Interactive
-// eslint-disable-next-line no-unused-vars
-const RevenueProtectionBreakdown = () => {
+// Revenue Protection Breakdown - Interactive (removed unused)
   const [selectedTypes, setSelectedTypes] = useState(['all']);
   const [viewMode, setViewMode] = useState('dollar'); // 'dollar' or 'volume'
   const [customerType, setCustomerType] = useState('all'); // 'all', 'new', 'repeat'
@@ -616,7 +610,6 @@ const RevenueProtectionBreakdown = () => {
 };
 
 // Use Case Card Component
-// eslint-disable-next-line no-unused-vars
 const UseCaseCard = ({ name, roiContribution, sparklineData, optimizationNote, icon, color }) => (
   <div className={`${color} p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-200 group`}>
     <div className="flex items-center gap-3 mb-3">
@@ -649,7 +642,6 @@ const UseCaseCard = ({ name, roiContribution, sparklineData, optimizationNote, i
 );
 
 // Predictive Callout Component
-// eslint-disable-next-line no-unused-vars
 const PredictiveCallout = ({ title, value, subtext, chartData, chartType = "bar", color, icon }) => (
   <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
     <div className="flex items-center justify-between mb-4">
@@ -688,7 +680,6 @@ const PredictiveCallout = ({ title, value, subtext, chartData, chartType = "bar"
 );
 
 // ROI Trend Chart with Toggle
-// eslint-disable-next-line no-unused-vars
 const ROITrendChart = () => {
   const [showProjected, setShowProjected] = useState(true);
   

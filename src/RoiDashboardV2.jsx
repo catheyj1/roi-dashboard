@@ -1090,7 +1090,7 @@ const ROIShareTrend = () => {
 };
 
 // Main V2 Dashboard Component
-function RoiDashboardV2() {
+function RoiDashboardV2({ dashboardVersion, setDashboardVersion }) {
   const [timeRange, setTimeRange] = useState("30d");
   const [kpiPeriod, setKpiPeriod] = useState("30d");
   
@@ -1134,9 +1134,21 @@ function RoiDashboardV2() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Returns Intelligence ROI Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">V2 - Simplified Interactive Layout</p>
+              <p className="text-sm text-gray-600 mt-1">RI V2 - Simplified Interactive Layout</p>
             </div>
             <div className="flex items-center space-x-4">
+              {/* Version Selector */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Version:</span>
+                <select
+                  className="border border-gray-200 rounded-md px-3 py-2 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                  value={dashboardVersion}
+                  onChange={(e) => setDashboardVersion(e.target.value)}
+                >
+                  <option value="v1">RI V1</option>
+                  <option value="v2">RI V2</option>
+                </select>
+              </div>
               <select
                 className="border border-gray-200 rounded-md px-3 py-2 bg-white text-sm focus:outline-none focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                 value={timeRange}

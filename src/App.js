@@ -52,23 +52,6 @@ function App() {
     return <RoiDashboardV2 dashboardVersion={dashboardVersion} setDashboardVersion={setDashboardVersion} />;
   }
 
-  // If V3 is selected, render the interactive dashboard
-  if (dashboardVersion === "v3") {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">V3 Dashboard Content Not Available</h1>
-          <p className="text-lg text-gray-600">Please select V1 or V2 from the dropdown.</p>
-          <button
-            onClick={() => setDashboardVersion("v1")}
-            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-md text-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            Go to V1
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -78,7 +61,7 @@ function App() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-1">Returns Intelligence ROI Dashboard</h1>
-              <p className="text-sm text-gray-600">Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
+              <p className="text-sm text-gray-600">RI V1 - Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
             </div>
             <div className="flex items-center space-x-4">
               {/* Version Selector */}
@@ -89,9 +72,8 @@ function App() {
                   value={dashboardVersion}
                   onChange={(e) => setDashboardVersion(e.target.value)}
                 >
-                  <option value="v1">V1 - Claims Style</option>
-                  <option value="v2">V2 - Simplified</option>
-                  <option value="v3">V3 - Interactive</option>
+                  <option value="v1">RI V1</option>
+                  <option value="v2">RI V2</option>
                 </select>
               </div>
               {/* PDF Export Button */}

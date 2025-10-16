@@ -70,54 +70,15 @@ export default function RoiBreakdownUseCaseTrust() {
           <ResponsiveContainer width="100%" height="100%">
             {view===VIEW.USE?(
               <BarChart data={roiBreakdownByUseCase} onClick={handleClickBar} style={{ cursor: 'pointer' }}>
-              <defs>
-                <linearGradient id="earlyRefundGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#16A34A" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#15803D" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="ktiHighGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0EA5E9" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#0284C7" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="inspectionGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#DC2626" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#B91C1C" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="ftidGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#EF4444" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#DC2626" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="blocklistGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F97316" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#EA580C" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="boxlessGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F59E0B" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#D97706" stopOpacity={0.8}/>
-                </linearGradient>
-                <linearGradient id="ktiDenialGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#FB7185" stopOpacity={1}/>
-                  <stop offset="100%" stopColor="#F43F5E" stopOpacity={0.8}/>
-                </linearGradient>
-              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={palette.border}/>
               <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
               <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
               <Legend wrapperStyle={{fontSize:10, color:"#6B7280"}}/>
               <Tooltip content={<CustomTooltip/>}/>
               {activeUseKeys.map((k)=>{
-                const gradientMap = {
-                  'early_refund': 'url(#earlyRefundGrad)',
-                  'kti_high': 'url(#ktiHighGrad)',
-                  'inspection': 'url(#inspectionGrad)',
-                  'ftid': 'url(#ftidGrad)',
-                  'blocklist': 'url(#blocklistGrad)',
-                  'boxless': 'url(#boxlessGrad)',
-                  'kti_denial': 'url(#ktiDenialGrad)'
-                };
                 return (
                   <Bar key={k} dataKey={k} name={roiUseCaseMeta[k].label}
-                       stackId="a" fill={gradientMap[k] || roiUseCaseMeta[k].color}
+                       stackId="a" fill={roiUseCaseMeta[k].color}
                        radius={[4,4,0,0]} />
                 );
               })}

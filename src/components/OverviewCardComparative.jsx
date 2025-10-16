@@ -11,7 +11,7 @@ export default function OverviewCardComparative({ item, isOpen, onClick }) {
     const data = iris.map((p, i) => ({
       month: p.month,
       iris: p.value,
-      industry: (industry[i]?.value ?? p.value) + 15 // Add offset for visual separation
+      industry: (industry[i]?.value ?? p.value) * 1.25 // Make industry 25% greater than IRIS
     }));
     return data;
   }, [item]);

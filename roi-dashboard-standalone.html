@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns Intelligence ROI Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.8.0/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .section-spacing > * + * { margin-top: 3rem; }
+        .tier-header { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .tier-sub { font-size: 0.875rem; color: #6B7280; margin-bottom: 1.5rem; }
+        .section-divider { border: none; height: 1px; background: #E5E7EB; margin: 2rem 0; }
+        .metric-card { background: white; border: 1px solid #E5E7EB; border-radius: 0.75rem; padding: 1.5rem; }
+        .card-header { margin-bottom: 1rem; }
+        .btn-primary { background: #2563EB; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 500; border: none; cursor: pointer; }
+        .btn-primary:hover { background: #1D4ED8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useMemo, useEffect } = React;
+        const { motion, AnimatePresence } = Motion;
+        const { 
+            BarChart, Bar, LineChart, Line, AreaChart, Area, XAxis, YAxis, Tooltip, Legend, 
+            ResponsiveContainer, CartesianGrid, ComposedChart, Cell 
+        } = Recharts;
+
+        // Mock Data
+        const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const rand = (min, max) => Math.round(min + Math.random() * (max - min));
+
+        const roiOverview = [
+            {
+                key: "total_roi",
+                title: "Total ROI Captured",
+                value: 610000,
+                percent: 55.2,
+                topDriver: "Early Refund",
+                description: "IRIS has captured 55% of total ROI opportunity through intelligent return routing and fraud prevention.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 45000 + i*2000 + rand(-3000,3000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 38000 + i*1500 + rand(-2000,2000)}))
+            },
+            {
+                key: "revenue_protected",
+                title: "Revenue Protected",
+                value: 2850000,
+                percent: 42.8,
+                topDriver: "Fraud Detection",
+                description: "Advanced fraud detection and boxless enforcement prevented $2.85M in fraudulent returns.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 220000 + i*8000 + rand(-15000,15000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 180000 + i*6000 + rand(-10000,10000)}))
+            },
+            {
+                key: "ltv_impact",
+                title: "Customer LTV Impact",
+                value: 1250000,
+                percent: 18.3,
+                topDriver: "KTI High-Trust",
+                description: "High-trust customer retention and repeat purchase rates increased by 18.3% through optimized return experiences.",
+                iris90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 95000 + i*3000 + rand(-5000,5000)})),
+                industry90d: Array.from({length: 12}, (_,i) => ({month: MONTHS[i], value: 75000 + i*2000 + rand(-3000,3000)}))
+            }
+        ];
+
+        const roiUseCaseMeta = {
+            early_refund: { label: "Early Refund", color: "#16A34A" },
+            kti_high: { label: "KTI High-Trust", color: "#0EA5E9" },
+            inspection: { label: "Inspection", color: "#DC2626" },
+            ftid: { label: "FTID", color: "#EF4444" },
+            blocklist: { label: "Blocklist", color: "#F97316" },
+            boxless: { label: "Boxless", color: "#F59E0B" },
+            kti_denial: { label: "KTI Denial", color: "#FB7185" }
+        };
+
+        const useCaseKeys = Object.keys(roiUseCaseMeta);
+
+        const roiBreakdownByUseCase = MONTHS.map((m, i) => {
+            const base = {
+                month: m,
+                early_refund: 18000 + i*1200 + rand(-2000,2000),
+                kti_high: 15000 + i*800 + rand(-1500,1500),
+                inspection: 12000 + i*600 + rand(-1000,1000),
+                ftid: 8000 + i*400 + rand(-800,800),
+                blocklist: 6000 + i*300 + rand(-600,600),
+                boxless: 5000 + i*250 + rand(-500,500),
+                kti_denial: 3000 + i*150 + rand(-300,300)
+            };
+            return base;
+        });
+
+        const roiTrustTierByMetric = MONTHS.map((m,i)=>{
+            const holidayPeak = (i === 10 || i === 11) ? 1.4 : 1.0;
+            const backToSchool = (i === 7 || i === 8) ? 1.2 : 1.0;
+            const summerDip = (i >= 5 && i <= 7) ? 0.8 : 1.0;
+            const springPeak = (i === 3 || i === 4) ? 1.15 : 1.0;
+            const regionalVariation = 0.9 + (Math.sin(i * 0.5) * 0.2) + (Math.random() * 0.1);
+            const valentinesBoost = (i === 1) ? 1.1 : 1.0;
+            const mothersDayBoost = (i === 4) ? 1.08 : 1.0;
+            const fathersDayBoost = (i === 5) ? 1.05 : 1.0;
+            const blackFridayPrep = (i === 9) ? 1.15 : 1.0;
+            const seasonalFactor = holidayPeak * backToSchool * summerDip * springPeak * regionalVariation * 
+                                 valentinesBoost * mothersDayBoost * fathersDayBoost;
+            const migrationTrend = 1 + (i * 0.02);
+            
+            return {
+                month: m,
+                "# Returns": {
+                    High: Math.round((18000 + i*200) * seasonalFactor + rand(-800,800)),
+                    Medium: Math.round((56000 - i*600) * seasonalFactor + rand(-1200,1200)),
+                    Low: Math.round((54000 - i*350) * seasonalFactor + rand(-1000,1000))
+                },
+                "Avg LTV": {
+                    High: Math.round((1200 + i*10) * migrationTrend + rand(-20,20)),
+                    Medium: Math.round((420 + i*3) * migrationTrend + rand(-15,15)),
+                    Low: Math.round((125 - i*2) * migrationTrend + rand(-10,10))
+                },
+                "# Customers": {
+                    High: Math.round((20000 + i*250) * seasonalFactor + rand(-500,500)),
+                    Medium: Math.round((40000 - i*350) * seasonalFactor + rand(-800,800)),
+                    Low: Math.round((16000 - i*100) * seasonalFactor + rand(-300,300))
+                },
+                "Revenue Protected": {
+                    High: Math.round((125000 + i*4500) * seasonalFactor + rand(-3000,3000)),
+                    Medium: Math.round((95000 + i*1800) * seasonalFactor + rand(-2500,2500)),
+                    Low: Math.round((75000 - i*1400) * seasonalFactor + rand(-2000,2000))
+                }
+            };
+        });
+
+        const trustTierFlat = (metric) => {
+            return roiTrustTierByMetric.map((r)=>({
+                month:r.month,
+                High:r[metric]?.High??0,
+                Medium:r[metric]?.Medium??0,
+                Low:r[metric]?.Low??0
+            }));
+        };
+
+        const toSparkMonths = (data) => data.slice(-3);
+
+        const palette = {
+            iris: "#2563EB",
+            industry: "#9CA3AF",
+            border: "#E5E7EB"
+        };
+
+        // Custom Tooltip Component
+        const CustomTooltip = ({ active, payload, label }) => {
+            if (active && payload && payload.length) {
+                return (
+                    <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+                        <p className="font-medium text-gray-900">{label}</p>
+                        {payload.map((entry, index) => (
+                            <p key={index} className="text-sm" style={{ color: entry.color }}>
+                                {entry.name}: {entry.value?.toLocaleString()}
+                            </p>
+                        ))}
+                    </div>
+                );
+            }
+            return null;
+        };
+
+        // Overview Card Component
+        const OverviewCardComparative = ({ item, isOpen, onClick }) => {
+            const sparkData = useMemo(() => {
+                const iris = toSparkMonths(item.iris90d);
+                const industry = toSparkMonths(item.industry90d);
+                const data = iris.map((p, i) => ({
+                    month: p.month,
+                    iris: p.value,
+                    industry: (industry[i]?.value ?? p.value) + 15
+                }));
+                return data;
+            }, [item]);
+
+            const momChange = useMemo(() => {
+                if (sparkData.length < 2) return 0;
+                const current = sparkData[sparkData.length - 1].iris;
+                const previous = sparkData[sparkData.length - 2].iris;
+                return Math.round(((current - previous) / previous) * 100);
+            }, [sparkData]);
+
+            return (
+                <motion.div layout className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-sm transition-all">
+                    <div className="flex items-start justify-between">
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                            <p className="text-3xl font-bold text-gray-900">${item.value.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Top Driver <span className="font-medium text-gray-900">{item.topDriver}</span>
+                            </p>
+                            <p className="text-sm text-gray-700 mt-2">{item.description}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1">
+                            <div className="text-sm text-gray-500">{item.percent?.toFixed?.(1)}%</div>
+                            <div className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                momChange >= 0 
+                                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                                    : 'bg-red-50 text-red-700 border border-red-200'
+                            }`}>
+                                {momChange >= 0 ? '+' : ''}{momChange}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-gray-600 mt-3">
+                        <span>Return Intelligence (Last 90 days)</span>
+                        <span>Industry Benchmark</span>
+                    </div>
+
+                    <div className="h-20 mt-2 relative">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={sparkData}>
+                                <XAxis dataKey="month" hide />
+                                <YAxis hide />
+                                <Tooltip
+                                    contentStyle={{ fontSize: 11, background: 'white', border: '1px solid #E5E7EB', borderRadius: '6px' }}
+                                    formatter={(v, n) => [Math.round(v).toLocaleString(), n === "iris" ? "Return Intelligence" : "Industry Benchmark"]}
+                                    labelStyle={{ fontSize: 10, color: '#6B7280' }}
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="iris"
+                                    stroke={palette.iris} 
+                                    strokeWidth={2}
+                                    dot={false}
+                                    activeDot={{ r: 3, fill: palette.iris }} 
+                                />
+                                <Line 
+                                    type="monotone" 
+                                    dataKey="industry"
+                                    stroke="#9CA3AF" 
+                                    strokeWidth={1.5}
+                                    strokeDasharray="3 2"
+                                    dot={false}
+                                    activeDot={{ r: 3, fill: "#9CA3AF" }} 
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </motion.div>
+            );
+        };
+
+        // ROI Breakdown Component
+        const RoiBreakdownUseCaseTrust = () => {
+            const [view, setView] = useState("By Use Case");
+            const [metric, setMetric] = useState("ROI");
+            const [expanded, setExpanded] = useState(null);
+
+            const VIEW = { USE: "By Use Case", TRUST: "By Trust Tier" };
+            const METRICS = ["ROI", "Return Volume", "Revenue Protected", "LTV Growth"];
+
+            const activeUseKeys = useMemo(() => {
+                return useCaseKeys.filter(k => {
+                    const hasData = roiBreakdownByUseCase.some(m => m[k] > 0);
+                    return hasData;
+                });
+            }, []);
+
+            const trustMetricKey = useMemo(() => {
+                if (metric === "Return Volume") return "# Returns";
+                if (metric === "LTV Growth") return "Avg LTV";
+                return "Revenue Protected";
+            }, [metric]);
+
+            const trustChartData = useMemo(() => trustTierFlat(trustMetricKey), [trustMetricKey]);
+
+            const formatAxis = (v) => {
+                if (metric === "ROI" || metric === "Revenue Protected" || metric === "LTV Growth") {
+                    return `$${(v/1000).toFixed(0)}k`;
+                }
+                return v.toLocaleString();
+            };
+
+            const handleClickBar = (data) => {
+                if (data && data.activeLabel) {
+                    setExpanded(data.activeLabel);
+                }
+            };
+
+            return (
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">ROI Breakdown</h3>
+                        <div className="flex gap-2">
+                            {Object.values(VIEW).map((v) => (
+                                <button
+                                    key={v}
+                                    className={`px-3 py-1.5 text-sm rounded-md border ${
+                                        view === v
+                                            ? 'bg-blue-600 text-white border-blue-600'
+                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                    }`}
+                                    onClick={() => setView(v)}
+                                >
+                                    {v}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 mb-4">
+                        <span className="text-sm text-gray-600">Metric:</span>
+                        <div className="flex gap-1">
+                            {METRICS.map((m) => (
+                                <button
+                                    key={m}
+                                    className={`px-2 py-1 text-xs rounded ${
+                                        metric === m
+                                            ? 'bg-gray-900 text-white'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    }`}
+                                    onClick={() => setMetric(m)}
+                                >
+                                    {m}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-2">Click any bar or area to explore monthly details</p>
+
+                    <motion.div layout className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            {view === VIEW.USE ? (
+                                <BarChart data={roiBreakdownByUseCase} onClick={handleClickBar} style={{ cursor: 'pointer' }}>
+                                    <defs>
+                                        <linearGradient id="earlyRefundGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#16A34A" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#15803D" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="ktiHighGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#0EA5E9" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#0284C7" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="inspectionGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#DC2626" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#B91C1C" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="ftidGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#EF4444" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#DC2626" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="blocklistGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#F97316" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#EA580C" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="boxlessGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#F59E0B" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#D97706" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                        <linearGradient id="ktiDenialGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#FB7185" stopOpacity={1}/>
+                                            <stop offset="100%" stopColor="#F43F5E" stopOpacity={0.8}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={palette.border}/>
+                                    <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
+                                    <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
+                                    <Legend wrapperStyle={{fontSize:10, color:"#6B7280"}}/>
+                                    <CustomTooltip />
+                                    {activeUseKeys.map((k)=>{
+                                        const gradientMap = {
+                                            'early_refund': 'url(#earlyRefundGrad)',
+                                            'kti_high': 'url(#ktiHighGrad)',
+                                            'inspection': 'url(#inspectionGrad)',
+                                            'ftid': 'url(#ftidGrad)',
+                                            'blocklist': 'url(#blocklistGrad)',
+                                            'boxless': 'url(#boxlessGrad)',
+                                            'kti_denial': 'url(#ktiDenialGrad)'
+                                        };
+                                        return (
+                                            <Bar key={k} dataKey={k} name={roiUseCaseMeta[k].label}
+                                                 stackId="a" fill={gradientMap[k] || roiUseCaseMeta[k].color}
+                                                 radius={[4,4,0,0]} />
+                                        );
+                                    })}
+                                </BarChart>
+                            ) : (
+                                <motion.div layout initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={trustChartData} onClick={handleClickBar} style={{ cursor: 'pointer' }}>
+                                            <defs>
+                                                <linearGradient id="HighGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#16A34A" stopOpacity={0.7}/>
+                                                    <stop offset="95%" stopColor="#16A34A" stopOpacity={0.1}/>
+                                                </linearGradient>
+                                                <linearGradient id="MedGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.7}/>
+                                                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0.1}/>
+                                                </linearGradient>
+                                                <linearGradient id="LowGrad" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#DC2626" stopOpacity={0.7}/>
+                                                    <stop offset="95%" stopColor="#DC2626" stopOpacity={0.1}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <CartesianGrid strokeDasharray="3 3" stroke={palette.border}/>
+                                            <XAxis dataKey="month" tick={{fontSize:10,fill:"#6B7280"}}/>
+                                            <YAxis tickFormatter={formatAxis} tick={{fontSize:10,fill:"#6B7280"}}/>
+                                            <Tooltip content={<CustomTooltip/>}/>
+                                            <Legend wrapperStyle={{fontSize:10,color:"#6B7280"}}/>
+                                            <Area type="monotone" dataKey="High" stackId="1"
+                                                stroke="#16A34A" fill="url(#HighGrad)" />
+                                            <Area type="monotone" dataKey="Medium" stackId="1"
+                                                stroke="#2563EB" fill="url(#MedGrad)" />
+                                            <Area type="monotone" dataKey="Low" stackId="1"
+                                                stroke="#DC2626" fill="url(#LowGrad)" />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </motion.div>
+                            )}
+                        </ResponsiveContainer>
+                    </motion.div>
+
+                    {expanded && (
+                        <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4 p-4 bg-gray-50 rounded-lg"
+                        >
+                            <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-medium text-gray-900">Monthly Details - {expanded}</h4>
+                                <button 
+                                    onClick={() => setExpanded(null)}
+                                    className="text-gray-500 hover:text-gray-700"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                            <table className="min-w-full text-xs">
+                                <thead className="bg-gray-100 text-gray-600">
+                                    <tr>
+                                        <th className="p-2 text-left">Tier</th>
+                                        <th className="p-2 text-right">
+                                            {trustMetricKey === "# Returns" ? "Return Volume"
+                                             : trustMetricKey === "Avg LTV" ? "Avg LTV"
+                                             : "Revenue Protected"}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {(() => {
+                                        const row = roiTrustTierByMetric.find(r=>r.month===expanded);
+                                        return Object.keys(row?.[trustMetricKey]||{}).map((t)=>(
+                                            <tr key={t}>
+                                                <td className="p-2">{t}</td>
+                                                <td className="p-2 text-right">
+                                                    {trustMetricKey==="Avg LTV" || trustMetricKey==="Revenue Protected"
+                                                        ? `$${row[trustMetricKey][t].toLocaleString()}`
+                                                        : row[trustMetricKey][t].toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        ));
+                                    })()}
+                                </tbody>
+                            </table>
+                        </motion.div>
+                    )}
+                </div>
+            );
+        };
+
+        // Use Case Grid Component
+        const UseCaseExpandedGrid = () => {
+            const useCases = [
+                {
+                    name: "Early Refund",
+                    pillar: "Growth",
+                    roi: 175000,
+                    lift: 12,
+                    trust: "High",
+                    opportunity: 25000,
+                    status: "exceeding",
+                    description: "Instant refunds for high-trust customers driving LTV and repeat purchases."
+                },
+                {
+                    name: "KTI High-Trust",
+                    pillar: "Growth",
+                    roi: 95000,
+                    lift: 8,
+                    trust: "High",
+                    opportunity: 15000,
+                    status: "stable",
+                    description: "Keep the item decisions for high-value customers improve retention."
+                },
+                {
+                    name: "Inspection",
+                    pillar: "Protection",
+                    roi: 125000,
+                    lift: 15,
+                    trust: "Low",
+                    opportunity: 30000,
+                    status: "exceeding",
+                    description: "Automated inspection routing prevents fraudulent returns."
+                },
+                {
+                    name: "FTID",
+                    pillar: "Protection",
+                    roi: 75000,
+                    lift: 9,
+                    trust: "Low",
+                    opportunity: 20000,
+                    status: "underperforming",
+                    description: "Fake tracking ID detection reduces return abuse."
+                },
+                {
+                    name: "Blocklist",
+                    pillar: "Protection",
+                    roi: 50000,
+                    lift: 6,
+                    trust: "Low",
+                    opportunity: 10000,
+                    status: "stable",
+                    description: "Known fraudster blocking prevents repeat abuse."
+                },
+                {
+                    name: "Boxless",
+                    pillar: "Efficiency",
+                    roi: 60000,
+                    lift: 7,
+                    trust: "Medium",
+                    opportunity: 18000,
+                    status: "improving",
+                    description: "Boxless returns reduce operational costs by 18%."
+                }
+            ];
+
+            return (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {useCases.map((useCase, index) => (
+                        <motion.div
+                            key={useCase.name}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-all"
+                        >
+                            <div className="flex items-start justify-between mb-3">
+                                <h4 className="font-semibold text-gray-900">{useCase.name}</h4>
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    useCase.status === 'exceeding' ? 'bg-green-100 text-green-800' :
+                                    useCase.status === 'stable' ? 'bg-blue-100 text-blue-800' :
+                                    useCase.status === 'improving' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-red-100 text-red-800'
+                                }`}>
+                                    {useCase.status}
+                                </span>
+                            </div>
+                            
+                            <div className="space-y-2 mb-4">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">ROI</span>
+                                    <span className="font-semibold text-gray-900">${useCase.roi.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Opportunity</span>
+                                    <span className="font-semibold text-blue-600">+${useCase.opportunity.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-gray-600">Lift</span>
+                                    <span className="font-semibold text-gray-900">+{useCase.lift}%</span>
+                                </div>
+                            </div>
+                            
+                            <p className="text-sm text-gray-600">{useCase.description}</p>
+                        </motion.div>
+                    ))}
+                </div>
+            );
+        };
+
+        // Policy Optimization Card Component
+        const PolicyOptimizationCard = ({ title, current, target, roi, effort, duration }) => (
+            <div className="metric-card">
+                <div className="card-header">
+                    <h4 className="text-lg font-bold text-gray-900">{title}</h4>
+                    <span className="text-sm text-gray-500 flex items-center gap-1">
+                        {effort.includes("Low") && "⚡"}
+                        {effort.includes("Medium") && "🔧"}
+                        {effort.includes("High") && "🏗"}
+                        {effort} • {duration}
+                    </span>
+                </div>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Current</span>
+                        <span className="text-sm font-semibold text-gray-900">{current}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Target</span>
+                        <span className="text-sm font-semibold text-gray-900">{target}</span>
+                    </div>
+                    <div className="pt-3 border-t border-gray-200">
+                        <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Est. ROI</span>
+                            <span className="text-lg font-bold text-green-600">{roi}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // Main App Component
+        const App = () => {
+            return (
+                <div className="min-h-screen bg-gray-50 text-gray-900">
+                    {/* Header */}
+                    <header className="bg-white border-b border-gray-200 shadow-sm">
+                        <div className="max-w-7xl mx-auto px-6 py-5">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-900 mb-1">Returns Intelligence ROI Dashboard</h1>
+                                    <p className="text-sm text-gray-600">Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-6 py-12 section-spacing">
+                        {/* Tier 1: Overview */}
+                        <section>
+                            <h2 className="tier-header mb-1">Tier 1 — ROI Overview</h2>
+                            <p className="tier-sub">High-level descriptive analytics summarizing ROI impact and distribution across IRIS pillars.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {roiOverview.map((item) => (
+                                    <OverviewCardComparative
+                                        key={item.key}
+                                        item={item}
+                                        isOpen={false}
+                                        onClick={() => {}}
+                                    />
+                                ))}
+                            </div>
+                        </section>
+
+                        <hr className="section-divider" />
+
+                        {/* Tier 2: Diagnostics */}
+                        <section>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-1.5 h-6 bg-blue-500 rounded"></div>
+                                <h2 className="tier-header">Tier 2 — Diagnostic Analytics</h2>
+                            </div>
+                            <p className="tier-sub">
+                                IRIS ROI performance across returns methods, trust tiers, and individual use cases.
+                            </p>
+
+                            <div className="space-y-10">
+                                <RoiBreakdownUseCaseTrust />
+                                <UseCaseExpandedGrid />
+                            </div>
+                        </section>
+
+                        <hr className="section-divider" />
+
+                        {/* Tier 3: Optimization */}
+                        <section>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="w-1.5 h-6 bg-green-500 rounded"></div>
+                                <h2 className="tier-header">Tier 3 — Optimization Opportunities</h2>
+                            </div>
+                            <p className="tier-sub">Prescriptive recommendations surfaced from ROI variance patterns and IRIS signal analysis.</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <PolicyOptimizationCard
+                                    title="Relax KTI suppression overlap"
+                                    current="68%"
+                                    target="<40%"
+                                    roi="+$12.4K"
+                                    effort="Low Effort"
+                                    duration="1 week"
+                                />
+                                <PolicyOptimizationCard
+                                    title="Adjust Boxless threshold"
+                                    current="12%"
+                                    target="8%"
+                                    roi="+$8.7K"
+                                    effort="Medium Effort"
+                                    duration="2 weeks"
+                                />
+                                <PolicyOptimizationCard
+                                    title="Increase IRIS weight in refund timing"
+                                    current="0.3x"
+                                    target="0.6x"
+                                    roi="+$5.3K"
+                                    effort="Low Effort"
+                                    duration="3 days"
+                                />
+                            </div>
+
+                            {/* Inline summary band */}
+                            <div className="mt-10 bg-gradient-to-r from-green-600 to-blue-600 text-white p-5 rounded-xl shadow-sm">
+                                <h3 className="text-sm font-semibold mb-1">Next ROI Unlock Potential</h3>
+                                <p className="text-sm text-blue-50 leading-snug">
+                                    IRIS has captured <span className="font-bold text-white">55%</span> of total ROI opportunity.
+                                    Expanding Early Refund and optimizing KTI thresholds can deliver another
+                                    <span className="font-bold text-white"> $363K</span> in value.
+                                </p>
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,13 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- Global dashboard refinements --- */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  @apply bg-gray-50 text-gray-900 font-sans antialiased;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+section {
+  @apply scroll-mt-20;
+}
+
+/* Professional Claims Dashboard Styling */
+.card {
+  @apply bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-200;
+}
+
+.card-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.tier-header {
+  @apply text-xl font-bold text-gray-900 tracking-tight;
+}
+
+.tier-sub {
+  @apply text-sm text-gray-600 mb-8 leading-relaxed;
+}
+
+/* Professional metric cards */
+.metric-card {
+  @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-200;
+}
+
+.metric-value {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+.metric-label {
+  @apply text-sm font-medium text-gray-600 uppercase tracking-wide;
+}
+
+.metric-change {
+  @apply text-sm font-semibold;
+}
+
+.metric-change.positive {
+  @apply text-green-600;
+}
+
+.metric-change.negative {
+  @apply text-red-600;
+}
+
+.metric-change.neutral {
+  @apply text-gray-600;
+}
+
+/* Professional chart containers */
+.chart-container {
+  @apply bg-white border border-gray-200 rounded-lg p-6 shadow-sm;
+}
+
+.chart-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.chart-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.chart-subtitle {
+  @apply text-sm text-gray-500;
+}
+
+/* Status indicators */
+.status-indicator {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-exceeding {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-improving {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-stable {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.status-underperforming {
+  @apply bg-amber-100 text-amber-800;
+}
+
+/* Professional buttons */
+.btn-primary {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200;
+}
+
+.btn-secondary {
+  @apply bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200;
+}
+
+/* Professional dividers */
+.section-divider {
+  @apply border-t border-gray-200 my-12;
+}
+
+/* Professional spacing */
+.section-spacing {
+  @apply space-y-12;
 }

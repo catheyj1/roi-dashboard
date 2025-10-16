@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns Intelligence ROI Dashboard - Fresh</title>
+    <style>
+        /* Essential CSS */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; background: #f9fafb; color: #111827; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .header { background: white; border-bottom: 1px solid #e5e7eb; padding: 1.5rem 0; margin-bottom: 2rem; }
+        .header h1 { font-size: 1.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .header p { color: #6b7280; font-size: 0.875rem; }
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .card { background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .card-title { font-size: 0.875rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem; }
+        .card-value { font-size: 1.875rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem; }
+        .card-driver { font-size: 0.75rem; color: #6b7280; margin-bottom: 0.5rem; }
+        .card-desc { font-size: 0.875rem; color: #374151; }
+        .card-percent { font-size: 0.875rem; color: #6b7280; text-align: right; }
+        .card-delta { display: inline-flex; align-items: center; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 10px; font-weight: 500; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .section-title { font-size: 1.25rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; }
+        .section-subtitle { font-size: 0.875rem; color: #6b7280; margin-bottom: 1.5rem; }
+        .use-case-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+        .use-case-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; }
+        .use-case-name { font-weight: 600; color: #111827; margin-bottom: 0.5rem; }
+        .use-case-status { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-bottom: 1rem; }
+        .status-exceeding { background: #dcfce7; color: #166534; }
+        .status-stable { background: #dbeafe; color: #1e40af; }
+        .status-improving { background: #fef3c7; color: #92400e; }
+        .status-underperforming { background: #fee2e2; color: #991b1b; }
+        .use-case-metrics { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .metric { text-align: center; }
+        .metric-label { font-size: 0.75rem; color: #6b7280; }
+        .metric-value { font-weight: 600; color: #111827; }
+        .metric-opportunity { color: #2563eb; }
+        .use-case-desc { font-size: 0.875rem; color: #6b7280; }
+        .chart-placeholder { height: 80px; background: #f3f4f6; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #6b7280; font-size: 0.75rem; margin-top: 0.5rem; }
+        .optimization-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 2rem; }
+        .optimization-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; }
+        .optimization-title { font-size: 1.125rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem; }
+        .optimization-meta { font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; }
+        .optimization-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+        .optimization-label { font-size: 0.875rem; color: #6b7280; }
+        .optimization-value { font-weight: 600; color: #111827; }
+        .optimization-roi { font-size: 1.125rem; font-weight: 700; color: #16a34a; }
+        .summary-band { background: linear-gradient(to right, #16a34a, #2563eb); color: white; padding: 1.25rem; border-radius: 0.75rem; margin-top: 2rem; }
+        .summary-title { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .summary-text { font-size: 0.875rem; color: #eff6ff; }
+        .summary-highlight { font-weight: 700; color: white; }
+        .divider { border: none; height: 1px; background: #e5e7eb; margin: 2rem 0; }
+        .tier-indicator { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .tier-dot { width: 6px; height: 24px; background: #2563eb; border-radius: 3px; }
+        .tier-dot-green { background: #16a34a; }
+        .loading { text-align: center; padding: 2rem; color: #6b7280; }
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .grid-3 { grid-template-columns: 1fr; }
+            .use-case-grid { grid-template-columns: 1fr; }
+            .optimization-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading Dashboard...</div>
+    <div id="dashboard" style="display: none;">
+        <!-- Header -->
+        <div class="header">
+            <div class="container">
+                <h1>Returns Intelligence ROI Dashboard</h1>
+                <p>Tier 1: Descriptive Analytics — "How is Returns Intelligence performing?"</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Tier 1: ROI Overview -->
+            <section>
+                <h2 class="section-title">Tier 1 — ROI Overview</h2>
+                <p class="section-subtitle">High-level descriptive analytics summarizing ROI impact and distribution across IRIS pillars.</p>
+                
+                <div class="grid grid-3" id="overview-cards">
+                    <!-- Cards will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Tier 2: Diagnostic Analytics -->
+            <section>
+                <div class="tier-indicator">
+                    <div class="tier-dot"></div>
+                    <h2 class="section-title">Tier 2 — Diagnostic Analytics</h2>
+                </div>
+                <p class="section-subtitle">IRIS ROI performance across returns methods, trust tiers, and individual use cases.</p>
+                
+                <div class="card">
+                    <h3 class="card-title">ROI Breakdown by Use Case</h3>
+                    <div class="chart-placeholder">Interactive chart would be here</div>
+                </div>
+
+                <div class="use-case-grid" id="use-case-cards">
+                    <!-- Use case cards will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <div class="divider"></div>
+
+            <!-- Tier 3: Optimization Opportunities -->
+            <section>
+                <div class="tier-indicator">
+                    <div class="tier-dot tier-dot-green"></div>
+                    <h2 class="section-title">Tier 3 — Optimization Opportunities</h2>
+                </div>
+                <p class="section-subtitle">Prescriptive recommendations surfaced from ROI variance patterns and IRIS signal analysis.</p>
+                
+                <div class="optimization-grid" id="optimization-cards">
+                    <!-- Optimization cards will be populated by JavaScript -->
+                </div>
+
+                <div class="summary-band">
+                    <h3 class="summary-title">Next ROI Unlock Potential</h3>
+                    <p class="summary-text">
+                        IRIS has captured <span class="summary-highlight">55%</span> of total ROI opportunity. 
+                        Expanding Early Refund and optimizing KTI thresholds can deliver another 
+                        <span class="summary-highlight">$363K</span> in value.
+                    </p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Mock Data
+        const roiOverview = [
+            {
+                key: "total_roi",
+                title: "Total ROI Captured",
+                value: 610000,
+                percent: 55.2,
+                topDriver: "Early Refund",
+                description: "IRIS has captured 55% of total ROI opportunity through intelligent return routing and fraud prevention."
+            },
+            {
+                key: "revenue_protected",
+                title: "Revenue Protected",
+                value: 2850000,
+                percent: 42.8,
+                topDriver: "Fraud Detection",
+                description: "Advanced fraud detection and boxless enforcement prevented $2.85M in fraudulent returns."
+            },
+            {
+                key: "ltv_impact",
+                title: "Customer LTV Impact",
+                value: 1250000,
+                percent: 18.3,
+                topDriver: "KTI High-Trust",
+                description: "High-trust customer retention and repeat purchase rates increased by 18.3% through optimized return experiences."
+            }
+        ];
+
+        const useCases = [
+            {
+                name: "Early Refund",
+                pillar: "Growth",
+                roi: 175000,
+                lift: 12,
+                trust: "High",
+                opportunity: 25000,
+                status: "exceeding",
+                description: "Instant refunds for high-trust customers driving LTV and repeat purchases."
+            },
+            {
+                name: "KTI High-Trust",
+                pillar: "Growth",
+                roi: 95000,
+                lift: 8,
+                trust: "High",
+                opportunity: 15000,
+                status: "stable",
+                description: "Keep the item decisions for high-value customers improve retention."
+            },
+            {
+                name: "Inspection",
+                pillar: "Protection",
+                roi: 125000,
+                lift: 15,
+                trust: "Low",
+                opportunity: 30000,
+                status: "exceeding",
+                description: "Automated inspection routing prevents fraudulent returns."
+            },
+            {
+                name: "FTID",
+                pillar: "Protection",
+                roi: 75000,
+                lift: 9,
+                trust: "Low",
+                opportunity: 20000,
+                status: "underperforming",
+                description: "Fake tracking ID detection reduces return abuse."
+            },
+            {
+                name: "Blocklist",
+                pillar: "Protection",
+                roi: 50000,
+                lift: 6,
+                trust: "Low",
+                opportunity: 10000,
+                status: "stable",
+                description: "Known fraudster blocking prevents repeat abuse."
+            },
+            {
+                name: "Boxless",
+                pillar: "Efficiency",
+                roi: 60000,
+                lift: 7,
+                trust: "Medium",
+                opportunity: 18000,
+                status: "improving",
+                description: "Boxless returns reduce operational costs by 18%."
+            }
+        ];
+
+        const optimizations = [
+            {
+                title: "Relax KTI suppression overlap",
+                current: "68%",
+                target: "<40%",
+                roi: "+$12.4K",
+                effort: "Low Effort",
+                duration: "1 week"
+            },
+            {
+                title: "Adjust Boxless threshold",
+                current: "12%",
+                target: "8%",
+                roi: "+$8.7K",
+                effort: "Medium Effort",
+                duration: "2 weeks"
+            },
+            {
+                title: "Increase IRIS weight in refund timing",
+                current: "0.3x",
+                target: "0.6x",
+                roi: "+$5.3K",
+                effort: "Low Effort",
+                duration: "3 days"
+            }
+        ];
+
+        // Render functions
+        function renderOverviewCards() {
+            const container = document.getElementById('overview-cards');
+            container.innerHTML = roiOverview.map(item => `
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <div class="card-title">${item.title}</div>
+                            <div class="card-value">$${item.value.toLocaleString()}</div>
+                            <div class="card-driver">Top Driver <strong>${item.topDriver}</strong></div>
+                            <div class="card-desc">${item.description}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="card-percent">${item.percent}%</div>
+                            <div class="card-delta">+12%</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 0.75rem;">
+                        <span>Return Intelligence (Last 90 days)</span>
+                        <span>Industry Benchmark</span>
+                    </div>
+                    <div class="chart-placeholder">Sparkline chart</div>
+                </div>
+            `).join('');
+        }
+
+        function renderUseCaseCards() {
+            const container = document.getElementById('use-case-cards');
+            container.innerHTML = useCases.map(useCase => `
+                <div class="use-case-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+                        <div class="use-case-name">${useCase.name}</div>
+                        <div class="use-case-status status-${useCase.status}">${useCase.status}</div>
+                    </div>
+                    <div class="use-case-metrics">
+                        <div class="metric">
+                            <div class="metric-label">ROI</div>
+                            <div class="metric-value">$${useCase.roi.toLocaleString()}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Opportunity</div>
+                            <div class="metric-value metric-opportunity">+$${useCase.opportunity.toLocaleString()}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Lift</div>
+                            <div class="metric-value">+${useCase.lift}%</div>
+                        </div>
+                    </div>
+                    <div class="use-case-desc">${useCase.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderOptimizationCards() {
+            const container = document.getElementById('optimization-cards');
+            container.innerHTML = optimizations.map(opt => `
+                <div class="optimization-card">
+                    <div class="optimization-title">${opt.title}</div>
+                    <div class="optimization-meta">⚡ ${opt.effort} • ${opt.duration}</div>
+                    <div class="optimization-row">
+                        <span class="optimization-label">Current</span>
+                        <span class="optimization-value">${opt.current}</span>
+                    </div>
+                    <div class="optimization-row">
+                        <span class="optimization-label">Target</span>
+                        <span class="optimization-value">${opt.target}</span>
+                    </div>
+                    <div style="padding-top: 0.75rem; border-top: 1px solid #e5e7eb;">
+                        <div class="optimization-row">
+                            <span class="optimization-label">Est. ROI</span>
+                            <span class="optimization-roi">${opt.roi}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize dashboard
+        function initDashboard() {
+            try {
+                // Hide loading and show dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+
+                // Render all sections
+                renderOverviewCards();
+                renderUseCaseCards();
+                renderOptimizationCards();
+
+                console.log('Dashboard loaded successfully!');
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                document.getElementById('loading').innerHTML = 'Error loading dashboard. Please refresh the page.';
+            }
+        }
+
+        // Start the dashboard
+        initDashboard();
+    </script>
+</body>
+</html>
